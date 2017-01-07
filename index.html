@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Road Trip Planner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+</head>
+
+<body>
+<!--   <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="index.html"><span class="byname"> by Vincent Visconti</span><img id="logo" src="assets/images/ViVi_Web_logo_bb.svg" alt="Logo"></a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden" id="sign-out"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
+        <li class="dropdown" id="sign-in">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span> Login<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li id="google-sign-in"><a href="#"><span class="fa fa-google-plus-official" style="font-size:24px"></span> Google</a></li>
+                  <li id="github-sign-in"><a href="#"><span class="fa fa-github" style="font-size:24px"></span> Github</a></li>
+                </ul>
+            </li>
+      </ul>
+    </div>
+  </nav> -->
+  <div class="container">
+<!--     <div id="user-container">
+      <div id="user-pic"></div>
+      <div id="user-name"></div>
+    </div> -->
+    <br>
+    <!-- Jumbotron -->
+    <div class="jumbotron">
+<!--       <img class="ttLogo" src="assets/images/TrainTrackerLogo.png"> -->
+      <h1 class="text-center">Road Trip Planner</h1>
+      <!-- <div class="clock-wrapper">
+      <div id="clock" class="clock"></div> -->
+      <!-- </div> -->
+    </div>
+    <!-- <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><span class="fa fa-calendar" style="font-size:24px"></span> Train Tracker: Schedule</h3>
+          </div>
+          <div class="panel-body">
+            <table class="train-table" style="width:100%">
+              <tr>
+                <th style="width:20%">Train Name</th>
+                <th style="width:20%">Destination</th>
+                <th style="width:20%">Frequency</th>
+                <th style="width:20%">Next Arrival</th>
+                <th style="width:20%">Minutes Away</th>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="row">
+      <!-- Add Train Panel-->
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><span class="fa fa-car" style="font-size:24px"></span> Plan Your Trip</h3>
+          </div>
+          <div class="panel-body">
+            <form role="form">
+              <div class="input-group">
+                <!-- <label for="start-location-input"><p>Start:</p></label> -->
+                <span class="input-group-addon"><span class="fa fa-flag" style="font-size:20px"></span></span>
+                <input class="controls form-control" id="start-location-input" placeholder="Start: Address, City, Zip, Place of Interest" type="text">
+              </div>
+              <br>
+              <div class="input-group">
+                <!-- <label for="destination-location-input"><p>Destination:</p></label> -->
+                <span class="input-group-addon"><span class="fa fa-flag-checkered" style="font-size:20px"></span></span>
+                <input class="controls form-control" id="destination-location-input" placeholder="Finish: Address, City, Zip, Place of Interest" type="text">
+              </div>
+              <br>
+              <button class="btn btn-success" id="go-btn" type="button">Go!</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+                    
+
+      <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><span class="fa fa-map" style="font-size:24px"></span> Directions</h3>
+          </div>
+          <div class="panel-body">
+          <div id="gmap">
+          </div>
+          <!-- src="https://www.google.com/maps/embed/v1/place?key=AIzaSyC2I_GH0H5uaEaTXJIqKI_ioClHYh2ivEE&q=NJ" -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>    
+            <div id="map"></div> 
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"><span class="fa fa-edit" style="font-size:24px"></span> Edit Train Information</h4>
+        </div>
+        <div class="modal-body">
+          <form role="form">
+            <div class="form-group">
+              <label for="train-name-edit">Train Name:</label>
+              <input class="form-control" id="train-name-edit" type="text">
+            </div>
+            <div class="form-group">
+              <label for="destination-edit">Destination:</label>
+              <input class="form-control" id="destination-edit" type="text">
+            </div>
+            <div class="form-group">
+              <label for="first-train-time-edit">First Train Time: (Military)</label>
+              <input class="form-control timepicker" name="timepicker" id="first-train-time-edit">
+            </div>
+            <div class="form-group">
+              <label for="frequency-edit">Frequency: (Minutes)</label>
+              <input class="form-control" id="frequency-edit" type="text">
+            </div>
+          </form>
+          <div class="modal-footer">
+            <input class="btn btn-default" id="edit-train-info" type="submit">
+            <button type="button" class="btn btn-default close-edit" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Delete Modal -->
+  <div id="deleteModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"><span class="fa fa-eraser" style="font-size:24px"></span> Delete Train Record</h4>
+        </div>
+        <div class="modal-body">
+          <form role="form">
+            <div class="form-group">
+              <label for="train-name-delete">Train Name:</label>
+              <input class="form-control" id="train-name-delete" disabled type="text">
+            </div>
+            <div class="form-group">
+              <label for="destination-delete">Destination:</label>
+              <input class="form-control" id="destination-delete" disabled type="text">
+            </div>
+            <div class="form-group">
+              <label for="first-train-time-delete">First Train Time: (Military)</label>
+              <input class="form-control timepicker" name="timepicker" disabled id="first-train-time-delete">
+            </div>
+            <div class="form-group">
+              <label for="frequency-delete">Frequency: (Minutes)</label>
+              <input class="form-control" id="frequency-delete" disabled type="text">
+            </div>
+          </form>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="delete-train-info" data-dismiss="modal">Delete</button>
+            <button type="button" class="btn btn-default close-delete" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- Message Modal -->
+  <div id="msgModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"><span class="fa fa-exclamation-triangle" style="font-size:24px"></span> Warning</h4>
+        </div>
+        <div class="modal-body">
+          <div class="message">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default close-delete" data-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGy493c6wH8i1UTUA-03QwEOzsEpuV78&libraries=places"></script> -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGy493c6wH8i1UTUA-03QwEOzsEpuV78&libraries=places"></script>
+  <!-- <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script> -->
+  <script src="assets/js/app.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+
+</html>
