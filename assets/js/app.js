@@ -22,13 +22,14 @@ function init() {
 
     dirDisp.setMap(map);
     dirDisp.setPanel(document.getElementById('gdir'));
+    
 
 	var onClickGoHandler = function() {
-		origin = startInput.value
-		destination = endInput.value
+		origin = startInput.value;
+		destination = endInput.value;
       	calculateAndDisplayRoute();
     };
-
+    
     document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
 	
 	google.maps.event.addListener(map, 'click', function(event) {
@@ -55,18 +56,45 @@ function calculateAndDisplayRoute() {
 
 }
 
+function displayPlacesAroundMarker(marker){
+	$('#city_list').empty();
+	markers.forEach(function(m) {
+  
+		var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat="
+				+ m.position.lat() +"&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+
+		//console.log(geourl);
+		 $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
+        console.log(geoResponse);
+
+        for (var i = 0; i < geoResponse.geonames.length ; i++){
+        	var nearbyPlace = $("<div>").text(geoResponse.geonames[i].name);
+        	$('#city_list').append(nearbyPlace);
+        }
+        //console.log(response.Runtime);
+      });
+	});
+	
+	
+
+}
+
 function placeMarker(location) {
     var marker = new google.maps.Marker({
         position: location, 
         map: map
     });
     markers.push(marker);
-    waypts.push({
+    /*waypts.push({
     	location: location,
     	stopover: true
-    });
+    });*/
 
 	calculateAndDisplayRoute();
+	if(markers.length > 0){
+		displayPlacesAroundMarker(markers);
+	}
+	
 
 }
 
