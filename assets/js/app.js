@@ -1,23 +1,32 @@
 $(document).ready(function() {
 
+var markers = [];
+var waypts = [];
+var origin;
+var destination;
+var map;
+var dirDisp = new google.maps.DirectionsRenderer();
+var dirServ = new google.maps.DirectionsService();
+
 
 function init() {
 	var startInput = document.getElementById('start-location-input');
 	var endInput = document.getElementById('destination-location-input');
 	var autocompleteStart = new google.maps.places.Autocomplete(startInput);
 	var autocompleteEnd = new google.maps.places.Autocomplete(endInput);
-	var map = new google.maps.Map(document.getElementById('gmap'), {
+	
+	map = new google.maps.Map(document.getElementById('gmap'), {
             center: new google.maps.LatLng(40.450886, -74.338184),
             zoom: 7
         });
 
-	var directionsDisplay = new google.maps.DirectionsRenderer();
-    var directionsService = new google.maps.DirectionsService();
-
-    directionsDisplay.setMap(map);
+    dirDisp.setMap(map);
+    dirDisp.setPanel(document.getElementById('gdir'));
 
 	var onClickGoHandler = function() {
-      calculateAndDisplayRoute(directionsDisplay, directionsService, startInput.value, endInput.value);
+		origin = startInput.value
+		destination = endInput.value
+      	calculateAndDisplayRoute();
     };
 
     document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
@@ -27,16 +36,14 @@ function init() {
 	});
 }
 
-function calculateAndDisplayRoute(dirDisp, dirServ, origin, destination) {
-
-// var src = "https://www.google.com/maps/embed/v1/directions?key=AIzaSyC2I_GH0H5uaEaTXJIqKI_ioClHYh2ivEE"
-// 	+ "&origin=" + origin + "&destination=" + destination;
-
-// $("#gmap").attr("src", src);
+function calculateAndDisplayRoute() {
 
 	dirServ.route({
 	  origin: origin,
 	  destination: destination,
+	  waypoints: waypts,
+      optimizeWaypoints: true,
+      provideRouteAlternatives: true,	
 	  travelMode: 'DRIVING'
 	}, function(response, status) {
 	  if (status === 'OK') {
@@ -54,6 +61,13 @@ function placeMarker(location) {
         map: map
     });
     markers.push(marker);
+    waypts.push({
+    	location: location,
+    	stopover: true
+    });
+
+	calculateAndDisplayRoute();
+
 }
 
 google.maps.event.addDomListener(window, 'load', init);
