@@ -1,160 +1,148 @@
 $(document).ready(function() {
 
-var markers = [];
-var waypts = [];
-var searchResults = [];
-var origin;
-var destination;
-var map;
-var dirDisp = new google.maps.DirectionsRenderer();
-var dirServ = new google.maps.DirectionsService();
+    var markers = [];
+    var waypts = [];
+    var searchResults = [];
+    var origin;
+    var destination;
+    var map;
+    var dirDisp = new google.maps.DirectionsRenderer();
+    var dirServ = new google.maps.DirectionsService();
 
 
-function init() {
-	var startInput = document.getElementById('start-location-input');
-	var endInput = document.getElementById('destination-location-input');
-	var autocompleteStart = new google.maps.places.Autocomplete(startInput);
-	var autocompleteEnd = new google.maps.places.Autocomplete(endInput);
-	
-	map = new google.maps.Map(document.getElementById('gmap'), {
+    function init() {
+        var startInput = document.getElementById('start-location-input');
+        var endInput = document.getElementById('destination-location-input');
+        var autocompleteStart = new google.maps.places.Autocomplete(startInput);
+        var autocompleteEnd = new google.maps.places.Autocomplete(endInput);
+
+        map = new google.maps.Map(document.getElementById('gmap'), {
             center: new google.maps.LatLng(40.450886, -74.338184),
             zoom: 7
         });
 
-    dirDisp.setMap(map);
-    dirDisp.setPanel(document.getElementById('gdir'));
-    
+        dirDisp.setMap(map);
+        dirDisp.setPanel(document.getElementById('gdir'));
 
-	var onClickGoHandler = function() {
-		origin = "Danbury, CT, United States";//startInput.value;
-		destination = "Chicago, IL, United States";//endInput.value;
-      	calculateAndDisplayRoute();
-    };
-    
-    document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
-	
-	google.maps.event.addListener(map, 'click', function(event) {
-	   placeMarker(event.latLng);
-	});
-}
 
-function calculateAndDisplayRoute() {
+        var onClickGoHandler = function() {
+            origin = startInput.value;
+            destination = endInput.value;
+            calculateAndDisplayRoute();
+        };
 
-	dirServ.route({
-	  origin: origin,
-	  destination: destination,
-	  waypoints: waypts,
-      optimizeWaypoints: true,
-      provideRouteAlternatives: true,	
-	  travelMode: 'DRIVING'
-	}, function(response, status) {
-	  if (status === 'OK') {
-	    dirDisp.setDirections(response);
-	  } else {
-	    window.alert('Directions request failed due to ' + status);
-	  }
-	});
+        document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
 
-}
+        google.maps.event.addListener(map, 'click', function(event) {
+            placeMarker(event.latLng);
+        });
+    }
 
-function displayPlacesAroundMarker(marker){
-	$('#city_list').empty();
-	markers.forEach(function(m) {
-  
-		var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat="
-				+ m.position.lat() +"&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+    function calculateAndDisplayRoute() {
 
-		//console.log(geourl);
-		 $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
-        console.log(geoResponse);
+        dirServ.route({
+            origin: origin,
+            destination: destination,
+            waypoints: waypts,
+            optimizeWaypoints: true,
+            provideRouteAlternatives: true,
+            travelMode: 'DRIVING'
+        }, function(response, status) {
+            if (status === 'OK') {
+                dirDisp.setDirections(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
 
-        for (var i = 0; i < geoResponse.geonames.length ; i++){
-        	var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name);
-        	nearbyPlace.append('<span class="fa fa-bed fa-fw" style="font-size:12px"></span>');
-        	nearbyPlace.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
-        	nearbyPlace.append('<span class="fa fa-camera fa-fw" style="font-size:12px"></span>');
-        	nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
-        	$('#city_list').append(nearbyPlace);
+    }
 
-        }
-        $(".nearby-place-div").on("click", function() {
-		console.log($(this).data("data-lng"));
-		console.log($(this).data("data-lat"));
-		console.log($(this));
-		var category = 'restaurant';
-		var addPlaceInfo = getPlacesList($(this).data("data-lat"),$(this).data("data-lng"),category);
-		$(this).find('catNames').empty();
-		$(this).append(addPlaceInfo);
-      	});
-      });
-	});
-}
+    function displayPlacesAroundMarker(marker) {
+        $('#city_list').empty();
+        markers.forEach(function(m) {
 
-function getPlacesList(lat, lng,category ){
-		
-				var plc = $("<div class='catNames'>");
-				
-				var loc = new google.maps.LatLng(lat, lng);
-				infowindow = new google.maps.InfoWindow();
-		        var service = new google.maps.places.PlacesService(map);
-		        service.nearbySearch({
-		          location: loc,
-		          radius: 500,
-		          type: [category],
-		        }, callback);
+            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
 
-		/*var placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?location="
-				+ lat +"," + lng + "&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
-		//placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=40.2453741,-75.6496302&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
-		 $.ajax({ 
-		 	url: placeurl, 
-		 	type: "GET",
-  			dataType: 'json',
-  			crossOrigin: true,
-  			'Access-Control-Allow-Origin' : '*'
-		 }).done(function(placeResponse) {
-        console.log(placeResponse);
-        //console.log(response.Runtime);
-      });*/
-      	for (var i = 0; i < searchResults.length; i++) {
-      		var catName = $("<div>");
-      		catName.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
-      		catName.append(searchResults[i].name);
+            //console.log(geourl);
+            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
+                console.log(geoResponse);
+
+                for (var i = 0; i < geoResponse.geonames.length; i++) {
+                    var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name);
+                    nearbyPlace.append('<span class="fa fa-bed fa-fw" style="font-size:12px"></span>');
+                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
+                    nearbyPlace.append('<span class="fa fa-camera fa-fw" style="font-size:12px"></span>');
+                    nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
+                    $('#city_list').append(nearbyPlace);
+
+                }
+                $(".nearby-place-div").on("click", function() {
+                    $('#place_list').empty();
+                    $('#place_list').append($(this).text());
+                    var category = 'restaurant';
+                    var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
+
+                    $('#place_list').append(addPlaceInfo);
+                });
+            });
+        });
+    }
+
+    function getPlacesListFromGoogleAPI(lat, lng, category) {
+
+        var plc = $("<div class='catNames'>");
+        var loc = new google.maps.LatLng(lat, lng);
+        infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+        service.nearbySearch({
+            location: loc,
+            radius: 500,
+            type: [category],
+        }, callback);
+
+       
+        for (var i = 0; i < searchResults.length; i++) {
+            var catName = $("<div>");
+            catName.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
+            catName.append(searchResults[i].name);
             plc.append(catName);
-
-            //console.log(results[i].opening_hours);
-          }
-         searchResults = [];
-		 return plc;
-}
-
-function callback(results, status) {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          searchResults = results.slice();
-          
+            console.log(catName);
         }
-      }
+        searchResults = [];
+        return plc;
+    }
 
-function placeMarker(location) {
-    var marker = new google.maps.Marker({
-        position: location, 
-        map: map
-    });
-    markers.push(marker);
-    /*waypts.push({
-    	location: location,
-    	stopover: true
-    });*/
+    function callback(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            searchResults = results.slice();
 
-	calculateAndDisplayRoute();
-	if(markers.length > 0){
-		displayPlacesAroundMarker(markers);
-	}
-	
+        }
+    }
 
-}
+    function getPlacesListFromYelpAPI(lat, lng, category) {
+    	// Add code for Yelp API here
+    }
 
-google.maps.event.addDomListener(window, 'load', init);
+    function placeMarker(location) {
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+        markers.push(marker);
+        /*waypts.push({
+        	location: location,
+        	stopover: true
+        });*/
+
+        calculateAndDisplayRoute();
+        if (markers.length > 0) {
+            displayPlacesAroundMarker(markers);
+        }
+
+
+    }
+
+    google.maps.event.addDomListener(window, 'load', init);
 
 
 
