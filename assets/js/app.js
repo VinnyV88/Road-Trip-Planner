@@ -87,18 +87,38 @@ function displayPlacesAroundMarker(marker){
 	// 	});
 	
 var settings = {
-  "url": "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972",
+  "async": true,
+  "crossDomain": true,
+  "url": "https://crossorigin.me/https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972",
   "method": "GET",
   "headers": {
     "authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx",
-    "cache-control": "no-cache",
-    "access-control-allow-origin": "https://vp-road-trip-planner.herokuapp.com"
+    "cache-control": "no-cache"
   }
 }
 
 $.ajax(settings).done(function (response) {
   console.log(response);
 });
+
+
+// var data = null;
+
+// var xhr = new XMLHttpRequest();
+// xhr.withCredentials = true;
+
+// xhr.addEventListener("readystatechange", function () {
+//   if (this.readyState === 4) {
+//     console.log(this.responseText);
+//   }
+// });
+
+// xhr.open("GET", "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972");
+// xhr.setRequestHeader("authorization", "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx");
+// xhr.setRequestHeader("cache-control", "no-cache");
+// // xhr.setRequestHeader("postman-token", "ea1f3d1d-e4e7-3562-1909-dea04a6c245f");
+
+// xhr.send(data);	
 	
 
 }
