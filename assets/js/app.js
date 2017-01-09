@@ -129,10 +129,6 @@ $(document).ready(function() {
         "crossDomain": true,
         "url": "https://api.darksky.net/forecast/21641b7b2b96f7eede5a22906c35deb8/" + lat + "," + lng + "?exclude=flags%2Cminutely%2Chourly",
         "method": "GET",
-        // "headers": {
-        //     "cache-control": "no-cache",
-        //     "postman-token": "097d3945-2de1-459b-a204-9f4d5dc9d54b"
-        //     }
         }
         console.log("get weather" + JSON.stringify(settings))
 
@@ -141,6 +137,15 @@ $(document).ready(function() {
             console.log("weather:  ");
             console.log(response);
 
+
+            for (i=0; i<response.daily.data.length; i++) {
+
+                weatherdate = response.daily.data[i].time;
+                hightemp = response.daily.data[i].temperatureMax;
+                lowtemp = response.daily.data[i].temperatureMin;
+                weatherforecast = response.daily.data[i].summary;
+                $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+            }
         });
     }  // end of getWeather
 
