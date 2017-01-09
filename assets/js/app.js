@@ -25,8 +25,8 @@ function init() {
     
 
 	var onClickGoHandler = function() {
-		origin = startInput.value;
-		destination = endInput.value;
+		origin = "Danbury, CT, United States";//startInput.value;
+		destination = "Chicago, IL, United States";//endInput.value;
       	calculateAndDisplayRoute();
     };
     
@@ -68,16 +68,65 @@ function displayPlacesAroundMarker(marker){
         console.log(geoResponse);
 
         for (var i = 0; i < geoResponse.geonames.length ; i++){
-        	var nearbyPlace = $("<div>").text(geoResponse.geonames[i].name);
+        	var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name);
+        	nearbyPlace.append('<span class="fa fa-bed fa-fw" style="font-size:12px"></span>');
+        	nearbyPlace.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
+        	nearbyPlace.append('<span class="fa fa-camera fa-fw" style="font-size:12px"></span>');
+        	nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
         	$('#city_list').append(nearbyPlace);
+
         }
-        //console.log(response.Runtime);
+        $(".nearby-place-div").on("click", function() {
+		console.log($(this).data("data-lng"));
+		console.log($(this).data("data-lat"));
+		console.log($(this));
+		var addPlaceInfo = getPlacesList($(this).data("data-lat"),$(this).data("data-lng"));
+		
+		$(this).append(addPlaceInfo);
+      	});
       });
 	});
-	
-	
-
 }
+
+function getPlacesList(lat, lng){
+		var placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?location="
+				+ lat +"," + lng + "&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
+				var plc = $("<div>");
+				plc.text("Add Div");
+				var loc = new google.maps.LatLng(lat, lng);
+				infowindow = new google.maps.InfoWindow();
+
+		        var service = new google.maps.places.PlacesService(map);
+		        service.nearbySearch({
+		          location: loc,
+		          radius: 500,
+		          type: ['restaurant']
+		        }, callback);
+
+		/*placeurl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+Sydney&key=AIzaSyAn7Mw8AH7zQYoFhVreQdQxfn9KYuwD_JA";
+		console.log(placeurl);
+		//placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=40.2453741,-75.6496302&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
+		 $.ajax({ 
+		 	url: placeurl, 
+		 	type: "GET",
+  			dataType: 'json',
+  			crossOrigin: true,
+  			'Access-Control-Allow-Origin' : '*'
+		 }).done(function(placeResponse) {
+        console.log(placeResponse);
+        //console.log(response.Runtime);
+      });*/
+		 return plc;
+}
+
+function callback(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          for (var i = 0; i < results.length; i++) {
+            //createMarker(results[i]);
+            console.log(results[i]);
+          }
+        }
+      }
 
 function placeMarker(location) {
     var marker = new google.maps.Marker({
