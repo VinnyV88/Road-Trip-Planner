@@ -2,6 +2,7 @@ $(document).ready(function() {
 
 var markers = [];
 var waypts = [];
+var searchResults = [];
 var origin;
 var destination;
 var map;
@@ -80,31 +81,30 @@ function displayPlacesAroundMarker(marker){
 		console.log($(this).data("data-lng"));
 		console.log($(this).data("data-lat"));
 		console.log($(this));
-		var addPlaceInfo = getPlacesList($(this).data("data-lat"),$(this).data("data-lng"));
-		
+		var category = 'restaurant';
+		var addPlaceInfo = getPlacesList($(this).data("data-lat"),$(this).data("data-lng"),category);
+		$(this).find('catNames').empty();
 		$(this).append(addPlaceInfo);
       	});
       });
 	});
 }
 
-function getPlacesList(lat, lng){
-		var placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?location="
-				+ lat +"," + lng + "&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
-				var plc = $("<div>");
-				plc.text("Add Div");
+function getPlacesList(lat, lng,category ){
+		
+				var plc = $("<div class='catNames'>");
+				
 				var loc = new google.maps.LatLng(lat, lng);
 				infowindow = new google.maps.InfoWindow();
-
 		        var service = new google.maps.places.PlacesService(map);
 		        service.nearbySearch({
 		          location: loc,
 		          radius: 500,
-		          type: ['restaurant']
+		          type: [category],
 		        }, callback);
 
-		/*placeurl = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+Sydney&key=AIzaSyAn7Mw8AH7zQYoFhVreQdQxfn9KYuwD_JA";
-		console.log(placeurl);
+		/*var placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?location="
+				+ lat +"," + lng + "&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
 		//placeurl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=40.2453741,-75.6496302&type=restaurant&key=AIzaSyChdzpVUSJi4iCSuBYCHaPUVYzadGWSbCI";
 		 $.ajax({ 
 		 	url: placeurl, 
@@ -116,15 +116,22 @@ function getPlacesList(lat, lng){
         console.log(placeResponse);
         //console.log(response.Runtime);
       });*/
+      	for (var i = 0; i < searchResults.length; i++) {
+      		var catName = $("<div>");
+      		catName.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
+      		catName.append(searchResults[i].name);
+            plc.append(catName);
+
+            //console.log(results[i].opening_hours);
+          }
+         searchResults = [];
 		 return plc;
 }
 
 function callback(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-          for (var i = 0; i < results.length; i++) {
-            //createMarker(results[i]);
-            console.log(results[i]);
-          }
+          searchResults = results.slice();
+          
         }
       }
 
