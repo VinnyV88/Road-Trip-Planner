@@ -22,13 +22,14 @@ function init() {
 
     dirDisp.setMap(map);
     dirDisp.setPanel(document.getElementById('gdir'));
+    
 
 	var onClickGoHandler = function() {
-		origin = startInput.value
-		destination = endInput.value
+		origin = startInput.value;
+		destination = endInput.value;
       	calculateAndDisplayRoute();
     };
-
+    
     document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
 	
 	google.maps.event.addListener(map, 'click', function(event) {
@@ -55,18 +56,71 @@ function calculateAndDisplayRoute() {
 
 }
 
+function displayPlacesAroundMarker(marker){
+	$('#city_list').empty();
+	markers.forEach(function(m) {
+  
+		var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat="
+				+ m.position.lat() +"&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+
+		//console.log(geourl);
+		 $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
+        console.log(geoResponse);
+
+        for (var i = 0; i < geoResponse.geonames.length ; i++){
+        	var nearbyPlace = $("<div>").text(geoResponse.geonames[i].name);
+        	$('#city_list').append(nearbyPlace);
+        }
+        //console.log(response.Runtime);
+      });
+	});
+
+	// var yelpurl = "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972";
+	// // var yelphdr = "\"Authorization\": \"Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx\""
+
+	// $.ajax({ url: yelpurl, 
+	// 		  method: "GET",
+	// 		  headers: {"Authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx"},
+	// 		  Cache-Control: no-cache
+	// 		}).done(function(yelpResponse) {
+	// 		console.log(yelpResponse);
+	// 	});
+	
+var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972",
+  "method": "GET",
+  "headers": {
+    "authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx",
+    "cache-control": "no-cache",
+    "postman-token": "e8d3499f-ae33-a037-4a58-6da28e1f0550"
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+	
+
+}
+
 function placeMarker(location) {
     var marker = new google.maps.Marker({
         position: location, 
         map: map
     });
     markers.push(marker);
-    waypts.push({
+    /*waypts.push({
     	location: location,
     	stopover: true
-    });
+    });*/
 
 	calculateAndDisplayRoute();
+	if(markers.length > 0){
+		displayPlacesAroundMarker(markers);
+	}
+	
 
 }
 
