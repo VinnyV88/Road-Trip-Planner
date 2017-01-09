@@ -8,7 +8,7 @@ $(document).ready(function() {
     var map;
     var dirDisp = new google.maps.DirectionsRenderer();
     var dirServ = new google.maps.DirectionsService();
-
+   
 
     function init() {
         var startInput = document.getElementById('start-location-input');
@@ -76,6 +76,9 @@ $(document).ready(function() {
                     $('#city_list').append(nearbyPlace);
 
                 }
+
+                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
+
                 $(".nearby-place-div").on("click", function() {
                     $('#place_list').empty();
                     $('#place_list').append($(this).text());
@@ -83,6 +86,7 @@ $(document).ready(function() {
                     var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
 
                     $('#place_list').append(addPlaceInfo);
+
                 });
             });
         });
@@ -118,6 +122,27 @@ $(document).ready(function() {
 
         }
     }
+
+    function getWeather(lat, lng) {
+        var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://api.darksky.net/forecast/21641b7b2b96f7eede5a22906c35deb8/" + lat + "," + lng + "?exclude=flags%2Cminutely%2Chourly",
+        "method": "GET",
+        // "headers": {
+        //     "cache-control": "no-cache",
+        //     "postman-token": "097d3945-2de1-459b-a204-9f4d5dc9d54b"
+        //     }
+        }
+        console.log("get weather" + JSON.stringify(settings))
+
+        $.ajax(settings).done(function (response) {
+        
+            console.log("weather:  ");
+            console.log(response);
+
+        });
+    }  // end of getWeather
 
     function getPlacesListFromYelpAPI(lat, lng, category) {
     	// Add code for Yelp API here
