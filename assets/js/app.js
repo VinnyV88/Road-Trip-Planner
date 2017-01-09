@@ -93,8 +93,7 @@ var settings = {
   "method": "GET",
   "headers": {
     "authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx",
-    "cache-control": "no-cache",
-    "postman-token": "e8d3499f-ae33-a037-4a58-6da28e1f0550"
+    "cache-control": "no-cache"
   }
 }
 
