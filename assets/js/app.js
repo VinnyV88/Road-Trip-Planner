@@ -37,6 +37,18 @@ $(document).ready(function() {
             placeMarker(event.latLng);
         });
 
+        $(document).on("click", ".add-route", function() {
+            var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+
+           waypts.push({
+            location: location,
+            stopover: true
+            });
+
+           calculateAndDisplayRoute();
+
+        });
+
     } // end init
 
     function calculateAndDisplayRoute() {
@@ -169,17 +181,38 @@ $(document).ready(function() {
     });
 
     google.maps.event.addListener(marker, 'click', function() {
-      infowindow.setContent(place.name);
+      // infoWindow will show:
+      //    option to Add to Route (or Remove from Route)
+      //    Business info
+      //       - Buisness Name
+      //       - Rating
+
+      console.log(waypts);
+
+      var location = {lat: this.position.lat(), lng: this.position.lng()}
+      var wayptCheck = {
+            location: location,
+            stopover: true
+            }
+
+      if (waypts.indexOf(wayptCheck) >= 0) {
+        console.log("true")
+      } else {
+        console.log("false")
+      }
+
+      var infodiv = $("<div>").addClass("infowin")
+      var name = $("<p>").text(place.name).addClass("place-name")
+      var rating = $("<p>").text(place.rating).addClass("place-rating")
+      var addRoute = $("<p>").text("Add to Route").addClass("add-route")
+            .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng());
+
+      infodiv.append(name).append(rating).append(addRoute)
+
+     infowindow.setContent(infodiv.html());
       infowindow.open(map, this);
     });
   }
-
-    // function callback(results, status) {
-    //     if (status === google.maps.places.PlacesServiceStatus.OK) {
-    //         searchResults = results.slice();
-
-    //     }
-    // }
 
     function getWeather(lat, lng) {
         var settings = {
