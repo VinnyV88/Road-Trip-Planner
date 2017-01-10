@@ -69,9 +69,9 @@ $(document).ready(function() {
 
                 for (var i = 0; i < geoResponse.geonames.length; i++) {
                     var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name);
-                    nearbyPlace.append('<span class="fa fa-bed fa-fw" style="font-size:12px"></span>');
-                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
-                    nearbyPlace.append('<span class="fa fa-camera fa-fw" style="font-size:12px"></span>');
+                    nearbyPlace.append('<span class="fa fa-bed fa-fw fa-action" style="font-size:18px"></span>');
+                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
+                    nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
                     nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
                     $('#city_list').append(nearbyPlace);
 
@@ -79,12 +79,26 @@ $(document).ready(function() {
 
                 getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
 
-                $(".nearby-place-div").on("click", function() {
+                $(".fa-action").on("click", function() {
+                    //debugger;
                     $('#place_list').empty();
-                    $('#place_list').append($(this).text());
-                    var category = 'restaurant';
-                    var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
-
+                    
+                    var category = 'wiki';
+                    console.log($(this).data("data-cat"));
+                    var classesList = $(this).attr('class').split(" ");
+                    if(classesList.indexOf('fa-cutlery') >= 0){
+                        category = 'food';
+                    }else if (classesList.indexOf('fa-thermometer-full') >= 0){
+                        category = 'weather';
+                    }else if (classesList.indexOf('fa-bed') >= 0){
+                        category = 'lodging';
+                    }
+                    console.log(category);
+                    var lat = $(this).parent().data("data-lat");
+                    var lng = $(this).parent().data("data-lng");
+                    var city = $(this).parent().text();
+                    //var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
+                    var addPlaceInfo = getPlacesListFromGoogleAPI(lat, lng, category, city);
                     $('#place_list').append(addPlaceInfo);
 
                 });
@@ -92,9 +106,10 @@ $(document).ready(function() {
         });
     }
 
-    function getPlacesListFromGoogleAPI(lat, lng, category) {
-
+    function getPlacesListFromGoogleAPI(lat, lng, category, city) {
+        console.log(lat + ","+  lng + "," +  category+ ", " +city);
         var plc = $("<div class='catNames'>");
+        plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
         var loc = new google.maps.LatLng(lat, lng);
         infowindow = new google.maps.InfoWindow();
         var service = new google.maps.places.PlacesService(map);
@@ -107,10 +122,9 @@ $(document).ready(function() {
        
         for (var i = 0; i < searchResults.length; i++) {
             var catName = $("<div>");
-            catName.append('<span class="fa fa-cutlery fa-fw" style="font-size:12px"></span>');
             catName.append(searchResults[i].name);
             plc.append(catName);
-            console.log(catName);
+            //console.log(catName);
         }
         searchResults = [];
         return plc;
@@ -129,6 +143,7 @@ $(document).ready(function() {
         "crossDomain": true,
         "url": "https://api.darksky.net/forecast/21641b7b2b96f7eede5a22906c35deb8/" + lat + "," + lng + "?exclude=flags%2Cminutely%2Chourly",
         "method": "GET",
+        "dataType": 'jsonp'
         }
         console.log("get weather" + JSON.stringify(settings))
 
