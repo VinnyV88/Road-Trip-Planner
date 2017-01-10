@@ -1,148 +1,237 @@
 $(document).ready(function() {
 
-var markers = [];
-var waypts = [];
-var origin;
-var destination;
-var map;
-var dirDisp = new google.maps.DirectionsRenderer();
-var dirServ = new google.maps.DirectionsService();
+    var markers = [];
+    var waypts = [];
+    var searchResults = [];
+    var origin;
+    var destination;
+    var map;
+    var dirDisp = new google.maps.DirectionsRenderer();
+    var dirServ = new google.maps.DirectionsService();
+    var globalCat;
+   
+    function init() {
+        var startInput = document.getElementById('start-location-input');
+        var endInput = document.getElementById('destination-location-input');
+        var autocompleteStart = new google.maps.places.Autocomplete(startInput);
+        var autocompleteEnd = new google.maps.places.Autocomplete(endInput);
 
-
-function init() {
-	var startInput = document.getElementById('start-location-input');
-	var endInput = document.getElementById('destination-location-input');
-	var autocompleteStart = new google.maps.places.Autocomplete(startInput);
-	var autocompleteEnd = new google.maps.places.Autocomplete(endInput);
-	
-	map = new google.maps.Map(document.getElementById('gmap'), {
+        map = new google.maps.Map(document.getElementById('gmap'), {
             center: new google.maps.LatLng(40.450886, -74.338184),
             zoom: 7
         });
 
-    dirDisp.setMap(map);
-    dirDisp.setPanel(document.getElementById('gdir'));
-    
+        dirDisp.setMap(map);
+        dirDisp.setPanel(document.getElementById('gdir'));
 
-	var onClickGoHandler = function() {
-		origin = startInput.value;
-		destination = endInput.value;
-      	calculateAndDisplayRoute();
-    };
-    
-    document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
-	
-	google.maps.event.addListener(map, 'click', function(event) {
-	   placeMarker(event.latLng);
-	});
-}
 
-function calculateAndDisplayRoute() {
+        var onClickGoHandler = function() {
+            origin = startInput.value;
+            destination = endInput.value;
+            calculateAndDisplayRoute();
+        };
 
-	dirServ.route({
-	  origin: origin,
-	  destination: destination,
-	  waypoints: waypts,
-      optimizeWaypoints: true,
-      provideRouteAlternatives: true,	
-	  travelMode: 'DRIVING'
-	}, function(response, status) {
-	  if (status === 'OK') {
-	    dirDisp.setDirections(response);
-	  } else {
-	    window.alert('Directions request failed due to ' + status);
-	  }
-	});
+        document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
 
-}
+        google.maps.event.addListener(map, 'click', function(event) {
+            placeMarker(event.latLng);
+        });
 
-function displayPlacesAroundMarker(marker){
-	$('#city_list').empty();
-	markers.forEach(function(m) {
-  
-		var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat="
-				+ m.position.lat() +"&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+    } // end init
 
-		//console.log(geourl);
-		 $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
-        console.log(geoResponse);
+    function calculateAndDisplayRoute() {
 
-        for (var i = 0; i < geoResponse.geonames.length ; i++){
-        	var nearbyPlace = $("<div>").text(geoResponse.geonames[i].name);
-        	$('#city_list').append(nearbyPlace);
+        dirServ.route({
+            origin: origin,
+            destination: destination,
+            waypoints: waypts,
+            optimizeWaypoints: true,
+            provideRouteAlternatives: true,
+            travelMode: 'DRIVING'
+        }, function(response, status) {
+            if (status === 'OK') {
+                dirDisp.setDirections(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+
+    }
+
+    function displayPlacesAroundMarker(marker) {
+        $('#city_list').empty();
+        markers.forEach(function(m) {
+
+            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+
+            //console.log(geourl);
+            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
+                console.log(geoResponse);
+
+                for (var i = 0; i < geoResponse.geonames.length; i++) {
+                    var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name)
+                    .attr("data-lat", geoResponse.geonames[i].lat).attr("data-lng", geoResponse.geonames[i].lng);
+                    nearbyPlace.append('<span class="fa fa-bed fa-fw fa-action" style="font-size:18px"></span>');
+                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
+                    nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
+                    // nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
+                    $('#city_list').append(nearbyPlace);
+
+                }
+
+                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
+
+                $(".fa-action").on("click", function() {
+                    //debugger;
+                    $('#place_list').empty();
+                    
+                    var category = 'wiki';
+                    console.log($(this).data("data-cat"));
+                    var classesList = $(this).attr('class').split(" ");
+                    if(classesList.indexOf('fa-cutlery') >= 0){
+                        category = 'restaurant';
+                    }else if (classesList.indexOf('fa-thermometer-full') >= 0){
+                        category = 'weather';
+                    }else if (classesList.indexOf('fa-bed') >= 0){
+                        category = 'lodging';
+                    }
+                    console.log(category);
+                    var lat = $(this).parent().data("lat");
+                    var lng = $(this).parent().data("lng");
+                    var city = $(this).parent().text();
+                    //var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
+                    // var addPlaceInfo = getPlacesListFromGoogleAPI(lat, lng, category, city);
+                    getPlacesListFromGoogleAPI(lat, lng, category, city);
+                    // $('#place_list').append(addPlaceInfo);
+
+                });
+            });
+        });
+    }
+
+    function getPlacesListFromGoogleAPI(lat, lng, category, city) {
+        // can't think of a better way to pass the category to the createMarker function
+        globalCat = category;
+        console.log(lat + ","+  lng + "," +  category+ ", " +city);
+        var plc = $("<div class='catNames'>");
+        plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
+        var loc = new google.maps.LatLng(lat, lng);
+        // var loc = {lat: lat, lng: lng};
+        infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+        service.nearbySearch({
+            location: loc,
+            radius: 5000,
+            type: [category]
+        }, callback);
+
+       
+        // for (var i = 0; i < searchResults.length; i++) {
+        //     var catName = $("<div>");
+        //     catName.append(searchResults[i].name);
+        //     plc.append(catName);
+        //     //console.log(catName);
+        // }
+        // searchResults = [];
+        // return plc;
+    }
+
+    function callback(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          var place = results[i];
+          createMarker(place);
         }
-        //console.log(response.Runtime);
-      });
-	});
+      }
+    }
 
-	// var yelpurl = "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972";
-	// // var yelphdr = "\"Authorization\": \"Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx\""
+    function createMarker(place) {
+    var placeLoc = place.geometry.location;
+    var icon;
 
-	// $.ajax({ url: yelpurl, 
-	// 		  method: "GET",
-	// 		  headers: {"Authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx"},
-	// 		  Cache-Control: no-cache
-	// 		}).done(function(yelpResponse) {
-	// 		console.log(yelpResponse);
-	// 	});
-	
-var settings = {
-  "async": true,
-  "crossDomain": true,
-  "url": "https://crossorigin.me/https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972",
-  "method": "GET",
-  "headers": {
-    "authorization": "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx",
-    "cache-control": "no-cache"
-  }
-}
+    switch (globalCat) {
 
-$.ajax(settings).done(function (response) {
-  console.log(response);
-});
+        case 'lodging':
+            icon = 'assets/images/ic_hotel_24px.svg'
+            break;
+        case 'restaurant':
+            icon = 'assets/images/ic_restaurant_24px.svg'
+            break;
+        case 'weather':
+            icon = 'assets/images/ic_wb_cloudy_24px.svg'
+            break;
+    }
 
-
-// var data = null;
-
-// var xhr = new XMLHttpRequest();
-// xhr.withCredentials = true;
-
-// xhr.addEventListener("readystatechange", function () {
-//   if (this.readyState === 4) {
-//     console.log(this.responseText);
-//   }
-// });
-
-// xhr.open("GET", "https://api.yelp.com/v3/businesses/search?term=delis&latitude=37.786882&longitude=-122.399972");
-// xhr.setRequestHeader("authorization", "Bearer qDWKq7x9-7hzkvuUy9cD5VMcQzcUvJCQMvg0OJb7cA7GFEz01af-h_s3Ewhh0LeAFsT6ExfRy0ppYSCWMoHfFY4zth1l_JrrKH-_dcz2Rtuk4wh_2kTS6a04Q8ByWHYx");
-// xhr.setRequestHeader("cache-control", "no-cache");
-// // xhr.setRequestHeader("postman-token", "ea1f3d1d-e4e7-3562-1909-dea04a6c245f");
-
-// xhr.send(data);	
-	
-
-}
-
-function placeMarker(location) {
     var marker = new google.maps.Marker({
-        position: location, 
-        map: map
+      map: map,
+      icon: icon,
+      position: place.geometry.location
     });
-    markers.push(marker);
-    /*waypts.push({
-    	location: location,
-    	stopover: true
-    });*/
 
-	calculateAndDisplayRoute();
-	if(markers.length > 0){
-		displayPlacesAroundMarker(markers);
-	}
-	
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.setContent(place.name);
+      infowindow.open(map, this);
+    });
+  }
 
-}
+    // function callback(results, status) {
+    //     if (status === google.maps.places.PlacesServiceStatus.OK) {
+    //         searchResults = results.slice();
 
-google.maps.event.addDomListener(window, 'load', init);
+    //     }
+    // }
+
+    function getWeather(lat, lng) {
+        var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://api.darksky.net/forecast/21641b7b2b96f7eede5a22906c35deb8/" + lat + "," + lng + "?exclude=flags%2Cminutely%2Chourly",
+        "method": "GET",
+        "dataType": 'jsonp'
+        }
+        console.log("get weather" + JSON.stringify(settings))
+
+        $.ajax(settings).done(function (response) {
+        
+            console.log("weather:  ");
+            console.log(response);
+
+
+            for (i=0; i<response.daily.data.length; i++) {
+
+                weatherdate = response.daily.data[i].time;
+                hightemp = response.daily.data[i].temperatureMax;
+                lowtemp = response.daily.data[i].temperatureMin;
+                weatherforecast = response.daily.data[i].summary;
+                $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+            }
+        });
+    }  // end of getWeather
+
+    function getPlacesListFromYelpAPI(lat, lng, category) {
+    	// Add code for Yelp API here
+    }
+
+    function placeMarker(location) {
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+        markers.push(marker);
+        /*waypts.push({
+        	location: location,
+        	stopover: true
+        });*/
+
+        calculateAndDisplayRoute();
+        if (markers.length > 0) {
+            displayPlacesAroundMarker(markers);
+        }
+
+
+    }
+
+    google.maps.event.addDomListener(window, 'load', init);
 
 
 
