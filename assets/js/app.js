@@ -10,6 +10,7 @@ $(document).ready(function() {
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
    
+
     function init() {
         var startInput = document.getElementById('start-location-input');
         var endInput = document.getElementById('destination-location-input');
@@ -51,6 +52,7 @@ $(document).ready(function() {
 
     } // end init
 
+
     function calculateAndDisplayRoute() {
 
         dirServ.route({
@@ -87,6 +89,7 @@ $(document).ready(function() {
                     nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
                     nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
                     // nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
+
                     $('#city_list').append(nearbyPlace);
 
                 }
@@ -102,6 +105,7 @@ $(document).ready(function() {
                     var classesList = $(this).attr('class').split(" ");
                     if(classesList.indexOf('fa-cutlery') >= 0){
                         category = 'restaurant';
+
                     }else if (classesList.indexOf('fa-thermometer-full') >= 0){
                         category = 'weather';
                     }else if (classesList.indexOf('fa-bed') >= 0){
@@ -116,6 +120,7 @@ $(document).ready(function() {
                     getPlacesListFromGoogleAPI(lat, lng, category, city);
                     // $('#place_list').append(addPlaceInfo);
 
+
                 });
             });
         });
@@ -124,11 +129,13 @@ $(document).ready(function() {
     function getPlacesListFromGoogleAPI(lat, lng, category, city) {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
+
         console.log(lat + ","+  lng + "," +  category+ ", " +city);
         var plc = $("<div class='catNames'>");
         plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
         var loc = new google.maps.LatLng(lat, lng);
         // var loc = {lat: lat, lng: lng};
+
         infowindow = new google.maps.InfoWindow();
         var service = new google.maps.places.PlacesService(map);
         service.nearbySearch({
@@ -213,6 +220,7 @@ $(document).ready(function() {
       infowindow.open(map, this);
     });
   }
+
 
     function getWeather(lat, lng) {
         var settings = {
