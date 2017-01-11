@@ -9,7 +9,7 @@ $(document).ready(function() {
     var dirDisp = new google.maps.DirectionsRenderer();
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
-   
+
 
     function init() {
         var startInput = document.getElementById('start-location-input');
@@ -35,6 +35,7 @@ $(document).ready(function() {
         document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
 
         google.maps.event.addListener(map, 'click', function(event) {
+        	deleteMarkers();
             placeMarker(event.latLng);
         });
 
@@ -45,6 +46,27 @@ $(document).ready(function() {
             location: location,
             stopover: true
             });
+
+           //update the waypt: key of the marker to indicate that it is now a waypoint marker
+           markers[$(this).data("index")].waypt = true;
+
+           calculateAndDisplayRoute();
+
+        });
+
+        $(document).on("click", ".remove-route", function() {
+           var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+
+           //delete the waypoint element indicated by the saved waypt-index 
+           waypts.splice($(this).data("waypt-index"), 1)
+
+           //if we delete a waypoint somewhere in the middle of the waypnts array, 
+           //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
+           $(this).nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
+
+           //update the marker to indicate it is no longer a waypoint and remove it from the map
+           markers[$(this).data("index")].waypt = false;
+           markers[$(this).data("index")].setMap(null);
 
            calculateAndDisplayRoute();
 
@@ -75,54 +97,56 @@ $(document).ready(function() {
     function displayPlacesAroundMarker(marker) {
         $('#city_list').empty();
         markers.forEach(function(m) {
+        	if (m.type === "nearby") {
+	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
 
-            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+	            //console.log(geourl);
+	            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
+	                console.log(geoResponse);
 
-            //console.log(geourl);
-            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
-                console.log(geoResponse);
+	                for (var i = 0; i < geoResponse.geonames.length; i++) {
+	                    var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name)
+	                    .attr("data-lat", geoResponse.geonames[i].lat).attr("data-lng", geoResponse.geonames[i].lng);
+	                    nearbyPlace.append('<span class="fa fa-bed fa-fw fa-action" style="font-size:18px"></span>');
+	                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
+	                    nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
+	                    // nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
 
-                for (var i = 0; i < geoResponse.geonames.length; i++) {
-                    var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name)
-                    .attr("data-lat", geoResponse.geonames[i].lat).attr("data-lng", geoResponse.geonames[i].lng);
-                    nearbyPlace.append('<span class="fa fa-bed fa-fw fa-action" style="font-size:18px"></span>');
-                    nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
-                    nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
-                    // nearbyPlace.data("data-lat", geoResponse.geonames[i].lat).data("data-lng", geoResponse.geonames[i].lng);
+	                    $('#city_list').append(nearbyPlace);
 
-                    $('#city_list').append(nearbyPlace);
+	                }
 
-                }
+	                //This throws an error if no nearby places are found
+	                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
 
-                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
+	                $(".fa-action").on("click", function() {
+	                    //debugger;
+	                    $('#place_list').empty();
+	                    
+	                    var category = 'wiki';
+	                    console.log($(this).data("data-cat"));
+	                    var classesList = $(this).attr('class').split(" ");
+	                    if(classesList.indexOf('fa-cutlery') >= 0){
+	                        category = 'restaurant';
 
-                $(".fa-action").on("click", function() {
-                    //debugger;
-                    $('#place_list').empty();
-                    
-                    var category = 'wiki';
-                    console.log($(this).data("data-cat"));
-                    var classesList = $(this).attr('class').split(" ");
-                    if(classesList.indexOf('fa-cutlery') >= 0){
-                        category = 'restaurant';
-
-                    }else if (classesList.indexOf('fa-thermometer-full') >= 0){
-                        category = 'weather';
-                    }else if (classesList.indexOf('fa-bed') >= 0){
-                        category = 'lodging';
-                    }
-                    console.log(category);
-                    var lat = $(this).parent().data("lat");
-                    var lng = $(this).parent().data("lng");
-                    var city = $(this).parent().text();
-                    //var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
-                    // var addPlaceInfo = getPlacesListFromGoogleAPI(lat, lng, category, city);
-                    getPlacesListFromGoogleAPI(lat, lng, category, city);
-                    // $('#place_list').append(addPlaceInfo);
+	                    }else if (classesList.indexOf('fa-thermometer-full') >= 0){
+	                        category = 'weather';
+	                    }else if (classesList.indexOf('fa-bed') >= 0){
+	                        category = 'lodging';
+	                    }
+	                    console.log(category);
+	                    var lat = $(this).parent().data("lat");
+	                    var lng = $(this).parent().data("lng");
+	                    var city = $(this).parent().text();
+	                    //var addPlaceInfo = getPlacesListFromGoogleAPI($(this).data("data-lat"), $(this).data("data-lng"), category);
+	                    // var addPlaceInfo = getPlacesListFromGoogleAPI(lat, lng, category, city);
+	                    getPlacesListFromGoogleAPI(lat, lng, category, city);
+	                    // $('#place_list').append(addPlaceInfo);
 
 
-                });
-            });
+	                });
+	            });
+	        } // end if marker type = nearby
         });
     }
 
@@ -181,42 +205,71 @@ $(document).ready(function() {
             break;
     }
 
+    //waypt: key will be used to identify a marker as a waypoint
+    //markeri: key will be used to identify where in the array of markers this element will reside after it is pushed
+    //type: key is used identify it is a place parker and not a location marker when we show nearby cities
     var marker = new google.maps.Marker({
       map: map,
       icon: icon,
+      waypt: false,
+      markeri: markers.length,
+      type: "place",
       position: place.geometry.location
     });
+
+    markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function() {
       // infoWindow will show:
       //    option to Add to Route (or Remove from Route)
       //    Business info
       //       - Buisness Name
-      //       - Rating
+      //       - Rating (if exists)
 
-      console.log(waypts);
+      var wayptExists = false;
+      var index;
+      var location = {lat: this.position.lat(), lng: this.position.lng()};
 
-      var location = {lat: this.position.lat(), lng: this.position.lng()}
-      var wayptCheck = {
-            location: location,
-            stopover: true
-            }
+      // Check to see if the marker that was clicked is an existing waypoint
+      // if it is, take note of the waypoint index so we can track this in our DOM element for waypoint management purposes
+      for (var i = 0; i < waypts.length; i++) {
+          if (waypts[i].location.lat === location.lat && waypts[i].location.lng === location.lng) {
+            wayptExists = true;
+            index = i;
+            break;
+          };
+      };
 
-      if (waypts.indexOf(wayptCheck) >= 0) {
-        console.log("true")
+      //create infowindow DOM element
+      var infodiv = $("<div>").addClass("infowin");
+      var name = $("<p>").text(place.name).addClass("place-name");
+
+      var rating;
+
+      if (place.rating == null) {
+      	rating = $("<p>").text("No Rating Available").addClass("place-rating");
       } else {
-        console.log("false")
+      	rating = $("<p>").text("Rating: " + place.rating + " of 5").addClass("place-rating");
       }
 
-      var infodiv = $("<div>").addClass("infowin")
-      var name = $("<p>").text(place.name).addClass("place-name")
-      var rating = $("<p>").text(place.rating).addClass("place-rating")
-      var addRoute = $("<p>").text("Add to Route").addClass("add-route")
-            .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng());
+      var toggleRoute;
 
-      infodiv.append(name).append(rating).append(addRoute)
+      //check to see if this marker, as determined above, is an existing waypoint. 
+      //if it is, then store the index of the waypoint in the DOM element so we know which waypoint to remove if the user chooses to do so
+      //also, we store the index of the marker itself so we know which marker to delete or not delete (if it's a waypoint) when we refresh the map
+      if (wayptExists) {
+      		toggleRoute = $("<p>").text("Remove from Route").addClass("remove-route")
+            .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng())
+            .attr("data-waypt-index", index).attr("data-index", this.markeri);
+      } else {
+      	    toggleRoute = $("<p>").text("Add to Route").addClass("add-route")
+            .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng())
+            .attr("data-index", this.markeri);
+      }
 
-     infowindow.setContent(infodiv.html());
+      infodiv.append(name).append(rating).append(toggleRoute);
+
+      infowindow.setContent(infodiv.html());
       infowindow.open(map, this);
     });
   }
@@ -256,13 +309,10 @@ $(document).ready(function() {
     function placeMarker(location) {
         var marker = new google.maps.Marker({
             position: location,
-            map: map
+            map: map,
+            type: "nearby"
         });
         markers.push(marker);
-        /*waypts.push({
-        	location: location,
-        	stopover: true
-        });*/
 
         calculateAndDisplayRoute();
         if (markers.length > 0) {
@@ -271,6 +321,41 @@ $(document).ready(function() {
 
 
     }
+
+	// Sets the map on all markers in the array.
+	function setMapOnAll(map) {
+		for (var i = 0; i < markers.length; i++) {
+		markers[i].setMap(map);
+		}
+	}
+
+	// Removes the markers from the map, but keeps them in the array.
+	function clearMarkers() {
+		setMapOnAll(null);
+	}
+
+	// Shows any markers currently in the array.
+	function showMarkers() {
+		setMapOnAll(map);
+	}
+
+	// Deletes all markers in the array by removing references to them.
+	function deleteMarkers() {
+		//make a copy of the current markers so that after we remove all of them, we can add back the waypoint markers
+		var markersHold = markers;
+		clearMarkers();
+		markers = [];
+
+		//if a marker is a waypoint, leave it on the map so the user has a way to remove from the route
+		for (var i = 0; i < markersHold.length; i++) {
+			if (markersHold[i].waypt) {
+				//reset the index hold area of the marker since only waypoint markers are kept
+				markersHold[i].markeri = markers.length
+				markers.push(markersHold[i])
+			}
+		}
+		showMarkers();
+	}
 
     google.maps.event.addDomListener(window, 'load', init);
 
