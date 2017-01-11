@@ -12,7 +12,7 @@ $(document).ready(function() {
    
 
     function init() {
-        $(".weather-panel").hide();
+        $(".panel-weather").hide();
         var startInput = document.getElementById('start-location-input');
         var endInput = document.getElementById('destination-location-input');
         var autocompleteStart = new google.maps.places.Autocomplete(startInput);
@@ -68,7 +68,9 @@ $(document).ready(function() {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
             } else {
-                window.alert('Directions request failed due to ' + status);
+                console.log("show modal now!")
+                $("#msgModal").modal("show");
+                // window.alert('Directions request failed due to ' + status);
             }
         });
 
@@ -227,7 +229,7 @@ $(document).ready(function() {
   }
 
 
-    function getWeather(lat, lng, city) {
+    function getWeather(lat, lng, category,city) {
         var settings = {
         "async": true,
         "crossDomain": true,
@@ -242,14 +244,17 @@ $(document).ready(function() {
             console.log("weather:  ");
             console.log(response);
 
+            if (category = "destination") {
+                for (i=0; i<response.daily.data.length; i++) {
 
-            for (i=0; i<response.daily.data.length; i++) {
-
-                weatherdate = response.daily.data[i].time;
-                hightemp = response.daily.data[i].temperatureMax;
-                lowtemp = response.daily.data[i].temperatureMin;
-                weatherforecast = response.daily.data[i].summary;
-                $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                    weatherdate = response.daily.data[i].time;
+                    hightemp = response.daily.data[i].temperatureMax;
+                    lowtemp = response.daily.data[i].temperatureMin;
+                    weatherforecast = response.daily.data[i].summary;
+                    $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                }
+            } else {
+                // put weather in a modal box
             }
         });
     }  // end of getWeather
