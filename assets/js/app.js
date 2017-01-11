@@ -54,13 +54,17 @@ $(document).ready(function() {
 
            //update the waypt: key of the marker to indicate that it is now a waypoint marker
            markers[$(this).data("index")].waypt = true;
+           refreshPlacesTab($(this).siblings()[0]);
 
            calculateAndDisplayRoute();
 
         });
 
         $(document).on("click", ".remove-route", function() {
-           var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+            removeWayPointsFromRoute($(this));
+            calculateAndDisplayRoute();
+            /*
+              var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
 
            //delete the waypoint element indicated by the saved waypt-index 
            waypts.splice($(this).data("waypt-index"), 1)
@@ -72,14 +76,28 @@ $(document).ready(function() {
            //update the marker to indicate it is no longer a waypoint and remove it from the map
            markers[$(this).data("index")].waypt = false;
            markers[$(this).data("index")].setMap(null);
-
-           calculateAndDisplayRoute();
-
+            */
         });
 
     } // end init
 
+      function removeWayPointsFromRoute(objWayPt){
+        var location = {lat: objWayPt.data("lat"), lng: objWayPt.data("lng")};
 
+           //delete the waypoint element indicated by the saved waypt-index 
+           waypts.splice(objWayPt.data("waypt-index"), 1)
+
+           //if we delete a waypoint somewhere in the middle of the waypnts array, 
+           //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
+           objWayPt.nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
+
+           //update the marker to indicate it is no longer a waypoint and remove it from the map
+           markers[objWayPt.data("index")].waypt = false;
+           markers[objWayPt.data("index")].setMap(null);
+      }
+          
+
+           
     function calculateAndDisplayRoute() {
 
         dirServ.route({
@@ -106,7 +124,7 @@ $(document).ready(function() {
         markers.forEach(function(m) {
 
         	if (m.type === "nearby") {
-	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities10000&username=tripstop";
 
 	            //console.log(geourl);
 	            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
@@ -129,8 +147,7 @@ $(document).ready(function() {
 
 	                $(".fa-action").on("click", function() {
 	                    //debugger;
-	                    $('#place_list').empty();
-	                    
+	         
 	                    var category = 'wiki';
 	                    console.log($(this).data("data-cat"));
 	                    var classesList = $(this).attr('class').split(" ");
@@ -226,7 +243,8 @@ $(document).ready(function() {
       waypt: false,
       markeri: markers.length,
       type: "place",
-      position: place.geometry.location
+      position: place.geometry.location,
+      animation: google.maps.Animation.DROP
     });
 
     markers.push(marker);
@@ -286,6 +304,17 @@ $(document).ready(function() {
     });
   }
 
+  function refreshPlacesTab(addtxt){
+        var newDiv = $("<div>");
+        newDiv.append('<span class="fa fa-times fa-fw fa-delete" style="font-size:18px"></span>');
+        newDiv.attr("data-id", "1");
+        newDiv.append(addtxt.innerHTML);
+        $("#place_list").append(newDiv);
+        $(".fa-delete").on("click", function() {
+                        console.log($(this).data("data-id"));
+                        $(this).parent().empty();
+                    });
+    }
 
     function getWeather(lat, lng, category,city) {
         var settings = {
@@ -332,7 +361,8 @@ $(document).ready(function() {
         var marker = new google.maps.Marker({
             position: location,
             map: map,
-            type: "nearby"
+            type: "nearby",
+            animation: google.maps.Animation.DROP
         });
         markers.push(marker);
 
