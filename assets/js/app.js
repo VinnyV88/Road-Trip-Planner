@@ -12,6 +12,7 @@ $(document).ready(function() {
    
 
     function init() {
+        $(".weather-panel").hide();
         var startInput = document.getElementById('start-location-input');
         var endInput = document.getElementById('destination-location-input');
         var autocompleteStart = new google.maps.places.Autocomplete(startInput);
@@ -29,6 +30,7 @@ $(document).ready(function() {
         var onClickGoHandler = function() {
             origin = startInput.value;
             destination = endInput.value;
+            console.log(destination);
             calculateAndDisplayRoute();
         };
 
@@ -94,7 +96,7 @@ $(document).ready(function() {
 
                 }
 
-                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
+                // getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
 
                 $(".fa-action").on("click", function() {
                     //debugger;
@@ -129,22 +131,25 @@ $(document).ready(function() {
     function getPlacesListFromGoogleAPI(lat, lng, category, city) {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
+        if (category == 'weather'){
 
-        console.log(lat + ","+  lng + "," +  category+ ", " +city);
-        var plc = $("<div class='catNames'>");
-        plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
-        var loc = new google.maps.LatLng(lat, lng);
-        // var loc = {lat: lat, lng: lng};
+        } 
+        else {
+            console.log(lat + ","+  lng + "," +  category+ ", " +city);
+            var plc = $("<div class='catNames'>");
+            plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
+            var loc = new google.maps.LatLng(lat, lng);
+            // var loc = {lat: lat, lng: lng};
 
-        infowindow = new google.maps.InfoWindow();
-        var service = new google.maps.places.PlacesService(map);
-        service.nearbySearch({
-            location: loc,
-            radius: 5000,
-            type: [category]
-        }, callback);
+            infowindow = new google.maps.InfoWindow();
+            var service = new google.maps.places.PlacesService(map);
+            service.nearbySearch({
+                location: loc,
+                radius: 5000,
+                type: [category]
+            }, callback);
 
-       
+        }
         // for (var i = 0; i < searchResults.length; i++) {
         //     var catName = $("<div>");
         //     catName.append(searchResults[i].name);
@@ -222,7 +227,7 @@ $(document).ready(function() {
   }
 
 
-    function getWeather(lat, lng) {
+    function getWeather(lat, lng, city) {
         var settings = {
         "async": true,
         "crossDomain": true,
