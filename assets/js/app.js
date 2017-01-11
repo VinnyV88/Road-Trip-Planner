@@ -12,6 +12,7 @@ $(document).ready(function() {
 
 
     function init() {
+        $(".panel-weather").hide();
         var startInput = document.getElementById('start-location-input');
         var endInput = document.getElementById('destination-location-input');
         var autocompleteStart = new google.maps.places.Autocomplete(startInput);
@@ -29,7 +30,11 @@ $(document).ready(function() {
         var onClickGoHandler = function() {
             origin = startInput.value;
             destination = endInput.value;
+            console.log(destination);
             calculateAndDisplayRoute();
+            $("#msgModaltitle").text("Hint")
+            $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
+            $("#msgModal").modal("show");
         };
 
         document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
@@ -88,7 +93,9 @@ $(document).ready(function() {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
             } else {
-                window.alert('Directions request failed due to ' + status);
+                $("#msgModaltitle").text("Warning")
+                $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
+                $("#msgModal").modal("show");
             }
         });
 
@@ -97,6 +104,7 @@ $(document).ready(function() {
     function displayPlacesAroundMarker(marker) {
         $('#city_list').empty();
         markers.forEach(function(m) {
+
         	if (m.type === "nearby") {
 	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
 
@@ -153,22 +161,26 @@ $(document).ready(function() {
     function getPlacesListFromGoogleAPI(lat, lng, category, city) {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
+        if (category == 'weather'){
+            console.log("getting weather forecast");
+            getWeather(lat, lng, category,city);
+        } 
+        else {
+            console.log(lat + ","+  lng + "," +  category+ ", " +city);
+            var plc = $("<div class='catNames'>");
+            plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
+            var loc = new google.maps.LatLng(lat, lng);
+            // var loc = {lat: lat, lng: lng};
 
-        console.log(lat + ","+  lng + "," +  category+ ", " +city);
-        var plc = $("<div class='catNames'>");
-        plc.append("<h4>"+ " Find "+  category + "  in " + city + "</h4>");
-        var loc = new google.maps.LatLng(lat, lng);
-        // var loc = {lat: lat, lng: lng};
+            infowindow = new google.maps.InfoWindow();
+            var service = new google.maps.places.PlacesService(map);
+            service.nearbySearch({
+                location: loc,
+                radius: 5000,
+                type: [category]
+            }, callback);
 
-        infowindow = new google.maps.InfoWindow();
-        var service = new google.maps.places.PlacesService(map);
-        service.nearbySearch({
-            location: loc,
-            radius: 5000,
-            type: [category]
-        }, callback);
-
-       
+        }
         // for (var i = 0; i < searchResults.length; i++) {
         //     var catName = $("<div>");
         //     catName.append(searchResults[i].name);
@@ -275,7 +287,7 @@ $(document).ready(function() {
   }
 
 
-    function getWeather(lat, lng) {
+    function getWeather(lat, lng, category,city) {
         var settings = {
         "async": true,
         "crossDomain": true,
@@ -287,17 +299,27 @@ $(document).ready(function() {
 
         $.ajax(settings).done(function (response) {
         
-            console.log("weather:  ");
+            console.log("weather:  " + category + ", " + city);
             console.log(response);
 
-
-            for (i=0; i<response.daily.data.length; i++) {
-
-                weatherdate = response.daily.data[i].time;
-                hightemp = response.daily.data[i].temperatureMax;
-                lowtemp = response.daily.data[i].temperatureMin;
-                weatherforecast = response.daily.data[i].summary;
-                $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+            if (category == "destination") {
+                for (i=0; i<response.daily.data.length; i++) {
+                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                    hightemp = response.daily.data[i].temperatureMax;
+                    lowtemp = response.daily.data[i].temperatureMin;
+                    weatherforecast = response.daily.data[i].summary;
+                    $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                }
+                $(".panel-weather").show()
+            } else {
+                for (i=0; i<response.daily.data.length; i++) {
+                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                    hightemp = response.daily.data[i].temperatureMax;
+                    lowtemp = response.daily.data[i].temperatureMin;
+                    weatherforecast = response.daily.data[i].summary;
+                    $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                }
+                 $("#weatherModal").modal("show");// put weather in a modal box
             }
         });
     }  // end of getWeather
