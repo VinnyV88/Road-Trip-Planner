@@ -70,7 +70,6 @@ $(document).ready(function() {
             } else {
                 console.log("show modal now!")
                 $("#msgModal").modal("show");
-                // window.alert('Directions request failed due to ' + status);
             }
         });
 
@@ -134,7 +133,8 @@ $(document).ready(function() {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
         if (category == 'weather'){
-
+            console.log("getting weather forecast");
+            getWeather(lat, lng, category,city);
         } 
         else {
             console.log(lat + ","+  lng + "," +  category+ ", " +city);
@@ -241,20 +241,27 @@ $(document).ready(function() {
 
         $.ajax(settings).done(function (response) {
         
-            console.log("weather:  ");
+            console.log("weather:  " + category + ", " + city);
             console.log(response);
 
-            if (category = "destination") {
+            if (category == "destination") {
                 for (i=0; i<response.daily.data.length; i++) {
-
-                    weatherdate = response.daily.data[i].time;
+                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
                     hightemp = response.daily.data[i].temperatureMax;
                     lowtemp = response.daily.data[i].temperatureMin;
                     weatherforecast = response.daily.data[i].summary;
                     $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
                 }
+                $(".panel-weather").show()
             } else {
-                // put weather in a modal box
+                for (i=0; i<response.daily.data.length; i++) {
+                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                    hightemp = response.daily.data[i].temperatureMax;
+                    lowtemp = response.daily.data[i].temperatureMin;
+                    weatherforecast = response.daily.data[i].summary;
+                    $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                }
+                 $("#weatherModal").modal("show");// put weather in a modal box
             }
         });
     }  // end of getWeather

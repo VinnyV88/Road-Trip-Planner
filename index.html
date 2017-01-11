@@ -169,10 +169,10 @@
   </div>    
 
   <!-- Edit Modal -->
-  <div id="editModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <!-- Modal content-->
-      <div class="modal-content">
+  <!--  <div id="editModal" class="modal fade" role="dialog">
+    <div class="modal-dialog"> -->
+      <!-- Modal content  -->
+    <!--   <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
           <h4 class="modal-title"><span class="fa fa-edit" style="font-size:24px"></span> Edit Train Information</h4>
@@ -203,37 +203,37 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> --> -->
   <!-- Delete Modal -->
-  <div id="deleteModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+  <div id="weatherModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title"><span class="fa fa-eraser" style="font-size:24px"></span> Delete Train Record</h4>
+          <h4 class="modal-title"><span class="fa fa-thermometer-full" style="font-size:24px"></span> Weather Forecast</h4>
         </div>
         <div class="modal-body">
-          <form role="form">
-            <div class="form-group">
-              <label for="train-name-delete">Train Name:</label>
-              <input class="form-control" id="train-name-delete" disabled type="text">
+          <div class="weather">
+              <table class="table table-striped table-hover table-weather-modal">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>High Temp.</th>
+                    <th>Low Temp.</th>
+                    <th>Forecast</th>
+                  </tr>
+                </thead>
+                <tbody>
+                     <!-- filled by JS -->
+                </tbody>
+              </table>
+              <div id="weather-alert">
+
+              </div>
             </div>
-            <div class="form-group">
-              <label for="destination-delete">Destination:</label>
-              <input class="form-control" id="destination-delete" disabled type="text">
-            </div>
-            <div class="form-group">
-              <label for="first-train-time-delete">First Train Time: (Military)</label>
-              <input class="form-control timepicker" name="timepicker" disabled id="first-train-time-delete">
-            </div>
-            <div class="form-group">
-              <label for="frequency-delete">Frequency: (Minutes)</label>
-              <input class="form-control" id="frequency-delete" disabled type="text">
-            </div>
-          </form>
+        </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" id="delete-train-info" data-dismiss="modal">Delete</button>
             <button type="button" class="btn btn-default close-delete" data-dismiss="modal">Close</button>
           </div>
         </div>
@@ -246,7 +246,7 @@
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="close" data-dismiss="modal"></button>
           <h4 class="modal-title"><span class="fa fa-exclamation-triangle" style="font-size:24px"></span> Warning</h4>
         </div>
         <div class="modal-body">
