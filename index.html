@@ -247,12 +247,11 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal"></button>
-          <h4 class="modal-title"><span class="fa fa-exclamation-triangle" style="font-size:24px"></span> Warning</h4>
+          <h4 class="modal-title" id="msgModaltitle"><span class="fa fa-exclamation-triangle" style="font-size:24px"></span> </h4>
         </div>
         <div class="modal-body">
-          <div class="message">
-            <p> The route could not be generated.  Please check your starting and ending points.
-            </p>
+          <div id="modal-message">
+            <!-- populated by JavaScript -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default close-delete" data-dismiss="modal">Ok</button>

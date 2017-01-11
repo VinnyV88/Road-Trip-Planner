@@ -32,6 +32,9 @@ $(document).ready(function() {
             destination = endInput.value;
             console.log(destination);
             calculateAndDisplayRoute();
+            $("#msgModaltitle").text("Hint")
+            $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
+            $("#msgModal").modal("show");
         };
 
         document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
@@ -68,7 +71,8 @@ $(document).ready(function() {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
             } else {
-                console.log("show modal now!")
+                $("#msgModaltitle").text("Warning")
+                $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
                 $("#msgModal").modal("show");
             }
         });
@@ -84,6 +88,7 @@ $(document).ready(function() {
             //console.log(geourl);
             $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
                 console.log(geoResponse);
+
 
                 for (var i = 0; i < geoResponse.geonames.length; i++) {
                     var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name)
