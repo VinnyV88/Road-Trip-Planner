@@ -10,6 +10,7 @@ $(document).ready(function() {
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
     var dirurl;
+    var showHint = true;
 
 
     function init() {
@@ -29,13 +30,18 @@ $(document).ready(function() {
 
 
         var onClickGoHandler = function() {
+            clearAll();
             origin = startInput.value;
             destination = endInput.value;
             console.log(destination);
             calculateAndDisplayRoute();
-            $("#msgModaltitle").text("Hint")
-            $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
-            $("#msgModal").modal("show");
+            if (showHint){
+              $("#msgModaltitle").text("Hint")
+              $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
+              $("#msgModal").modal("show");
+              showHint = false;
+            }
+            
         };
 
         document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
@@ -55,22 +61,29 @@ $(document).ready(function() {
 
            //update the waypt: key of the marker to indicate that it is now a waypoint marker
            markers[$(this).data("index")].waypt = true;
-
            calculateAndDisplayRoute();
 
         });
 
         $(document).on("click", ".remove-route", function() {
-           var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+            removeWayPointsFromRoute($(this));
+            calculateAndDisplayRoute();
+        });
+
+    } // end init
+
+      function removeWayPointsFromRoute(objWayPt){
+        var location = {lat: objWayPt.data("lat"), lng: objWayPt.data("lng")};
 
            //delete the waypoint element indicated by the saved waypt-index 
-           waypts.splice($(this).data("waypt-index"), 1)
+           waypts.splice(objWayPt.data("waypt-index"), 1)
 
            //if we delete a waypoint somewhere in the middle of the waypnts array, 
            //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
-           $(this).nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
+           objWayPt.nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
 
            //update the marker to indicate it is no longer a waypoint and remove it from the map
+
            markers[$(this).data("index")].waypt = false;
            markers[$(this).data("index")].setMap(null);
 
@@ -96,8 +109,19 @@ $(document).ready(function() {
         });
 
     } // end init
+                  
+                  // this was marked as conflict
+
+//            markers[objWayPt.data("index")].waypt = false;
+//            markers[objWayPt.data("index")].setMap(null);
+//       }
+                  
+                  
+                  // this was marked as conflict
+          
 
 
+           
     function calculateAndDisplayRoute() {
 
         dirurl = "https://www.google.com/maps/dir/" + origin;
@@ -123,6 +147,8 @@ $(document).ready(function() {
         }, function(response, status) {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
+                getDestlnglat(destination);
+                populatePlacesTab(response);
             } else {
                 $("#msgModaltitle").text("Warning")
                 $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
@@ -132,12 +158,37 @@ $(document).ready(function() {
 
     }
 
+     function populatePlacesTab(dsresponse) {
+    $('#place_list').empty();
+    for (var i = 0; i < dsresponse.geocoded_waypoints.length; i++) {
+        var request = {
+            placeId: dsresponse.geocoded_waypoints[i].place_id
+        };
+
+        service = new google.maps.places.PlacesService(map);
+        service.getDetails(request, callback);
+
+        function callback(place, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                pDiv = $('<div>');
+                pDiv.append('<p>').text(place.name)
+                pDiv.append('<p>').text(place.formatted_address)
+                pDiv.append('<p>').text(place.phone_number)
+                pDiv.append('<p>').text(place.website);
+                $('#place_list').append(pDiv);
+                //$('li #gdir').removeClass("active");
+                //$('li #place_list').addClass("active");
+            }
+        }
+      }        
+    }
+
     function displayPlacesAroundMarker(marker) {
         $('#city_list').empty();
         markers.forEach(function(m) {
 
         	if (m.type === "nearby") {
-	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities15000&username=tripstop";
+	            var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities10000&username=tripstop";
 
 	            //console.log(geourl);
 	            $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
@@ -155,13 +206,10 @@ $(document).ready(function() {
 
 	                }
 
-	                //This throws an error if no nearby places are found
-	                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
 
 	                $(".fa-action").on("click", function() {
 	                    //debugger;
-	                    $('#place_list').empty();
-	                    
+	         
 	                    var category = 'wiki';
 	                    console.log($(this).data("data-cat"));
 	                    var classesList = $(this).attr('class').split(" ");
@@ -193,8 +241,7 @@ $(document).ready(function() {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
         if (category == 'weather'){
-            console.log("getting weather forecast");
-            getWeather(lat, lng, category,city);
+            getWeather(lat, lng, category, city);
         } 
         else {
             console.log(lat + ","+  lng + "," +  category+ ", " +city);
@@ -257,7 +304,8 @@ $(document).ready(function() {
       waypt: false,
       markeri: markers.length,
       type: "place",
-      position: place.geometry.location
+      position: place.geometry.location,
+      animation: google.maps.Animation.DROP
     });
 
     markers.push(marker);
@@ -317,6 +365,29 @@ $(document).ready(function() {
     });
   }
 
+ 
+
+    function getDestlnglat(dest){
+
+        var deststr = dest.replace(/ /gi, "+");
+
+        var settings = {
+            "url": "https://maps.googleapis.com/maps/api/geocode/json?address=" + deststr + "&components=locality&key=AIzaSyB4Bfs-GG2wm1xuIfsRFm7MOc8K9gcSr9M",
+            "method": "GET",
+        }
+
+        $.ajax(settings).done(function (response) {
+           
+            if (response.status === 'OK') {
+                var destlat = response.results[0].geometry.location.lat;
+                var destlng = response.results[0].geometry.location.lng;
+                console.log("lat & lng = " + destlat +", " + destlng);
+                getWeather(destlat, destlng, "destination", dest)
+            } else {
+                console.log("WTF")
+           }
+        }); 
+    }
 
     function getWeather(lat, lng, category,city) {
         var settings = {
@@ -326,44 +397,48 @@ $(document).ready(function() {
         "method": "GET",
         "dataType": 'jsonp'
         }
-        console.log("get weather" + JSON.stringify(settings))
+        console.log("get weather lat : " + lat + " lng: " + lng + " category: " + category + " city: " + city)
 
         $.ajax(settings).done(function (response) {
-        
-            console.log("weather:  " + category + ", " + city);
-            console.log(response);
 
-            if (category == "destination") {
-                for (i=0; i<response.daily.data.length; i++) {
-                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
-                    hightemp = response.daily.data[i].temperatureMax;
-                    lowtemp = response.daily.data[i].temperatureMin;
-                    weatherforecast = response.daily.data[i].summary;
-                    $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
-                }
-                $(".panel-weather").show()
+           if (response == "Not Found") {
+                $("#msgModaltitle").text("Oops")
+                $("#modal-message").text("Sorry, weather data is not available right now.");
+                $("#msgModal").modal("show");      
             } else {
-                for (i=0; i<response.daily.data.length; i++) {
-                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
-                    hightemp = response.daily.data[i].temperatureMax;
-                    lowtemp = response.daily.data[i].temperatureMin;
-                    weatherforecast = response.daily.data[i].summary;
-                    $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                if (category == "destination") {
+                    for (i=0; i<response.daily.data.length; i++) {
+                        weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                        hightemp = response.daily.data[i].temperatureMax;
+                        lowtemp = response.daily.data[i].temperatureMin;
+                        weatherforecast = response.daily.data[i].summary;
+                        $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                    }
+                    $("#weather-title").text(" Weather Forecast for " + city)
+                    $(".panel-weather").show()
+                } else {
+                    $(".table-weather-modal > tbody").text(""); // empty table from previous request
+                    for (i=0; i<response.daily.data.length; i++) {
+                        weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                        hightemp = response.daily.data[i].temperatureMax;
+                        lowtemp = response.daily.data[i].temperatureMin;
+                        weatherforecast = response.daily.data[i].summary;
+                        $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                    }
+                    $("#weatherModalTitle").text(" Weather Forecast for " + city)
+                    $("#weatherModal").modal("show");// put weather in a modal box
                 }
-                 $("#weatherModal").modal("show");// put weather in a modal box
             }
         });
     }  // end of getWeather
 
-    function getPlacesListFromYelpAPI(lat, lng, category) {
-    	// Add code for Yelp API here
-    }
 
     function placeMarker(location) {
         var marker = new google.maps.Marker({
             position: location,
             map: map,
-            type: "nearby"
+            type: "nearby",
+            animation: google.maps.Animation.DROP
         });
         markers.push(marker);
 
@@ -428,6 +503,23 @@ function makeShort() {
     xhr.send();
 
 }
+  
+  // this was marked as conflict
+  function clearAll(){
+      
+      for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+      markers = [];
+      waypts = [];
+      searchResults = [];
+      $(".panel-weather").empty();
+      $("#city_list").empty();
+      $("#place_list").empty();
+
+  }
+//// this was marked as conflict
+
     google.maps.event.addDomListener(window, 'load', init);
 
 
