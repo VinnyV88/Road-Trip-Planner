@@ -9,6 +9,7 @@ $(document).ready(function() {
     var dirDisp = new google.maps.DirectionsRenderer();
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
+    var dirurl;
 
 
     function init() {
@@ -74,13 +75,42 @@ $(document).ready(function() {
            markers[$(this).data("index")].setMap(null);
 
            calculateAndDisplayRoute();
+        });
 
+        $(document).on("click", ".copy-button", function() {
+
+        $("#copy-target").removeClass("hidden")
+
+        // $("#copy-target").addClass("hidden")
+
+        });
+
+        var clipboard = new Clipboard('.copy-button');
+
+        clipboard.on('success', function(e) {
+            console.log("copy succcess" + e);
+        });
+
+        clipboard.on('error', function(e) {
+            console.log("copy error" + e);
         });
 
     } // end init
 
 
     function calculateAndDisplayRoute() {
+
+        dirurl = "https://www.google.com/maps/dir/" + origin;
+
+        waypts.forEach(function(w) {
+            dirurl += "/" + w.location.lat + "," + w.location.lng
+        })  ;
+
+        dirurl += "/" + destination;
+
+        $("#copy-target").text(dirurl);
+
+        console.log(dirurl);
 
         dirServ.route({
             origin: origin,

@@ -87,6 +87,11 @@
               <br>
               <button class="btn btn-success" id="go-btn" type="button">Go!</button>
             </form>
+            <!-- <button class="btn btn-success" id="copy-btn" data-clipboard-target="#dir-url">Copy Directions Link</button>
+            <div class="hidden" id="dir-url"></div> -->
+            <div id="copy-target"></div>
+            <button class="btn btn-success copy-button" data-clipboard-target="#copy-target">Copy Directions Link</button>
+
           </div>
         </div>
       </div>
@@ -203,7 +208,7 @@
         </div>
       </div>
     </div>
-  </div> --> -->
+  </div> --> 
   <!-- Delete Modal -->
   <div id="weatherModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -264,6 +269,8 @@
   <script src="https://code.jquery.com/jquery.js"></script>
   <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGy493c6wH8i1UTUA-03QwEOzsEpuV78&libraries=places"></script> -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGy493c6wH8i1UTUA-03QwEOzsEpuV78&libraries=places"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
+
   <!-- <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script> -->
   <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
   <script src="assets/js/app.js"></script>
