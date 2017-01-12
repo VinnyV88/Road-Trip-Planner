@@ -108,7 +108,8 @@ $(document).ready(function() {
 
         dirurl += "/" + destination;
 
-        $("#copy-target").text(dirurl);
+        // call url shortner
+        makeShort();
 
         console.log(dirurl);
 
@@ -409,6 +410,24 @@ $(document).ready(function() {
 		showMarkers();
 	}
 
+function makeShort() {
+
+    var xhr = new XMLHttpRequest();
+    var xhrdata;
+    xhr.open("GET", "https://api-ssl.bitly.com/v3/shorten?access_token=6f2e76e0fdc2ee6a57cfe862e16e1c19909c4efd&longUrl=" + encodeURI(dirurl));
+    xhr.onreadystatechange = function() { 
+        if(xhr.readyState == 4) { 
+            if(xhr.status==200) {
+                xhrdata = JSON.parse(xhr.responseText)
+                $("#copy-target").text(xhrdata.data.url)
+            } else {
+                console.log("Error: ", xhr);
+            }
+        } 
+    }
+    xhr.send();
+
+}
     google.maps.event.addDomListener(window, 'load', init);
 
 
