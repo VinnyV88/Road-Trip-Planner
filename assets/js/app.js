@@ -94,6 +94,7 @@ $(document).ready(function() {
         }, function(response, status) {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
+                getDestlnglat(destination);
                 populatePlacesTab(response);
             } else {
                 $("#msgModaltitle").text("Warning")
@@ -150,8 +151,6 @@ $(document).ready(function() {
 
 	                }
 
-	                //This throws an error if no nearby places are found
-	                getWeather(geoResponse.geonames[0].lat,geoResponse.geonames[0].lng)
 
 	                $(".fa-action").on("click", function() {
 	                    //debugger;
@@ -187,8 +186,7 @@ $(document).ready(function() {
         // can't think of a better way to pass the category to the createMarker function
         globalCat = category;
         if (category == 'weather'){
-            console.log("getting weather forecast");
-            getWeather(lat, lng, category,city);
+            getWeather(lat, lng, category, city);
         } 
         else {
             console.log(lat + ","+  lng + "," +  category+ ", " +city);
@@ -314,6 +312,28 @@ $(document).ready(function() {
 
  
 
+    function getDestlnglat(dest){
+
+        var deststr = dest.replace(/ /gi, "+");
+
+        var settings = {
+            "url": "https://maps.googleapis.com/maps/api/geocode/json?address=" + deststr + "&components=locality&key=AIzaSyB4Bfs-GG2wm1xuIfsRFm7MOc8K9gcSr9M",
+            "method": "GET",
+        }
+
+        $.ajax(settings).done(function (response) {
+           
+            if (response.status === 'OK') {
+                var destlat = response.results[0].geometry.location.lat;
+                var destlng = response.results[0].geometry.location.lng;
+                console.log("lat & lng = " + destlat +", " + destlng);
+                getWeather(destlat, destlng, "destination", dest)
+            } else {
+                console.log("WTF")
+           }
+        }); 
+    }
+
     function getWeather(lat, lng, category,city) {
         var settings = {
         "async": true,
@@ -322,38 +342,41 @@ $(document).ready(function() {
         "method": "GET",
         "dataType": 'jsonp'
         }
-        console.log("get weather" + JSON.stringify(settings))
+        console.log("get weather lat : " + lat + " lng: " + lng + " category: " + category + " city: " + city)
 
         $.ajax(settings).done(function (response) {
-        
-            console.log("weather:  " + category + ", " + city);
-            console.log(response);
 
-            if (category == "destination") {
-                for (i=0; i<response.daily.data.length; i++) {
-                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
-                    hightemp = response.daily.data[i].temperatureMax;
-                    lowtemp = response.daily.data[i].temperatureMin;
-                    weatherforecast = response.daily.data[i].summary;
-                    $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
-                }
-                $(".panel-weather").show()
+           if (response == "Not Found") {
+                $("#msgModaltitle").text("Oops")
+                $("#modal-message").text("Sorry, weather data is not available right now.");
+                $("#msgModal").modal("show");      
             } else {
-                for (i=0; i<response.daily.data.length; i++) {
-                    weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
-                    hightemp = response.daily.data[i].temperatureMax;
-                    lowtemp = response.daily.data[i].temperatureMin;
-                    weatherforecast = response.daily.data[i].summary;
-                    $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                if (category == "destination") {
+                    for (i=0; i<response.daily.data.length; i++) {
+                        weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                        hightemp = response.daily.data[i].temperatureMax;
+                        lowtemp = response.daily.data[i].temperatureMin;
+                        weatherforecast = response.daily.data[i].summary;
+                        $(".table-weather > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                    }
+                    $("#weather-title").text(" Weather Forecast for " + city)
+                    $(".panel-weather").show()
+                } else {
+                    $(".table-weather-modal > tbody").text(""); // empty table from previous request
+                    for (i=0; i<response.daily.data.length; i++) {
+                        weatherdate =  weatherdate = moment().add(i, "d").format("MM/DD");
+                        hightemp = response.daily.data[i].temperatureMax;
+                        lowtemp = response.daily.data[i].temperatureMin;
+                        weatherforecast = response.daily.data[i].summary;
+                        $(".table-weather-modal > tbody").append("<tr><td>" + weatherdate + "</td><td>" + hightemp + "</td><td>" + lowtemp + "</td><td>" + weatherforecast + "</td></tr>");
+                    }
+                    $("#weatherModalTitle").text(" Weather Forecast for " + city)
+                    $("#weatherModal").modal("show");// put weather in a modal box
                 }
-                 $("#weatherModal").modal("show");// put weather in a modal box
             }
         });
     }  // end of getWeather
 
-    function getPlacesListFromYelpAPI(lat, lng, category) {
-    	// Add code for Yelp API here
-    }
 
     function placeMarker(location) {
         var marker = new google.maps.Marker({
