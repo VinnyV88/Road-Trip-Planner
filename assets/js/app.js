@@ -54,8 +54,6 @@ $(document).ready(function() {
 
            //update the waypt: key of the marker to indicate that it is now a waypoint marker
            markers[$(this).data("index")].waypt = true;
-           refreshPlacesTab($(this).siblings()[0]);
-
            calculateAndDisplayRoute();
 
         });
@@ -63,20 +61,6 @@ $(document).ready(function() {
         $(document).on("click", ".remove-route", function() {
             removeWayPointsFromRoute($(this));
             calculateAndDisplayRoute();
-            /*
-              var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
-
-           //delete the waypoint element indicated by the saved waypt-index 
-           waypts.splice($(this).data("waypt-index"), 1)
-
-           //if we delete a waypoint somewhere in the middle of the waypnts array, 
-           //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
-           $(this).nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
-
-           //update the marker to indicate it is no longer a waypoint and remove it from the map
-           markers[$(this).data("index")].waypt = false;
-           markers[$(this).data("index")].setMap(null);
-            */
         });
 
     } // end init
@@ -110,6 +94,7 @@ $(document).ready(function() {
         }, function(response, status) {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
+                populatePlacesTab(response);
             } else {
                 $("#msgModaltitle").text("Warning")
                 $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
@@ -117,6 +102,29 @@ $(document).ready(function() {
             }
         });
 
+    }
+
+     function populatePlacesTab(dsresponse) {
+    $('#place_list').empty();
+    for (var i = 0; i < dsresponse.geocoded_waypoints.length; i++) {
+        var request = {
+            placeId: dsresponse.geocoded_waypoints[i].place_id
+        };
+
+        service = new google.maps.places.PlacesService(map);
+        service.getDetails(request, callback);
+
+        function callback(place, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                pDiv = $('<div>');
+                pDiv.append('<p>').text(place.name)
+                pDiv.append('<p>').text(place.formatted_address)
+                pDiv.append('<p>').text(place.phone_number)
+                pDiv.append('<p>').text(place.website);
+                $('#place_list').append(pDiv);
+            }
+        }
+      }        
     }
 
     function displayPlacesAroundMarker(marker) {
@@ -304,17 +312,7 @@ $(document).ready(function() {
     });
   }
 
-  function refreshPlacesTab(addtxt){
-        var newDiv = $("<div>");
-        newDiv.append('<span class="fa fa-times fa-fw fa-delete" style="font-size:18px"></span>');
-        newDiv.attr("data-id", "1");
-        newDiv.append(addtxt.innerHTML);
-        $("#place_list").append(newDiv);
-        $(".fa-delete").on("click", function() {
-                        console.log($(this).data("data-id"));
-                        $(this).parent().empty();
-                    });
-    }
+ 
 
     function getWeather(lat, lng, category,city) {
         var settings = {
