@@ -9,6 +9,7 @@ $(document).ready(function() {
     var dirDisp = new google.maps.DirectionsRenderer();
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
+    var dirurl;
     var showHint = true;
 
 
@@ -82,13 +83,59 @@ $(document).ready(function() {
            objWayPt.nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
 
            //update the marker to indicate it is no longer a waypoint and remove it from the map
-           markers[objWayPt.data("index")].waypt = false;
-           markers[objWayPt.data("index")].setMap(null);
-      }
+
+           markers[$(this).data("index")].waypt = false;
+           markers[$(this).data("index")].setMap(null);
+
+           calculateAndDisplayRoute();
+        });
+
+        $(document).on("click", ".copy-button", function() {
+
+        $("#copy-target").removeClass("hidden")
+
+        // $("#copy-target").addClass("hidden")
+
+        });
+
+        var clipboard = new Clipboard('.copy-button');
+
+        clipboard.on('success', function(e) {
+            console.log("copy succcess" + e);
+        });
+
+        clipboard.on('error', function(e) {
+            console.log("copy error" + e);
+        });
+
+    } // end init
+                  
+                  // this was marked as conflict
+
+//            markers[objWayPt.data("index")].waypt = false;
+//            markers[objWayPt.data("index")].setMap(null);
+//       }
+                  
+                  
+                  // this was marked as conflict
           
+
 
            
     function calculateAndDisplayRoute() {
+
+        dirurl = "https://www.google.com/maps/dir/" + origin;
+
+        waypts.forEach(function(w) {
+            dirurl += "/" + w.location.lat + "," + w.location.lng
+        })  ;
+
+        dirurl += "/" + destination;
+
+        // call url shortner
+        makeShort();
+
+        console.log(dirurl);
 
         dirServ.route({
             origin: origin,
@@ -438,6 +485,26 @@ $(document).ready(function() {
 		showMarkers();
 	}
 
+function makeShort() {
+
+    var xhr = new XMLHttpRequest();
+    var xhrdata;
+    xhr.open("GET", "https://api-ssl.bitly.com/v3/shorten?access_token=6f2e76e0fdc2ee6a57cfe862e16e1c19909c4efd&longUrl=" + encodeURI(dirurl));
+    xhr.onreadystatechange = function() { 
+        if(xhr.readyState == 4) { 
+            if(xhr.status==200) {
+                xhrdata = JSON.parse(xhr.responseText)
+                $("#copy-target").text(xhrdata.data.url)
+            } else {
+                console.log("Error: ", xhr);
+            }
+        } 
+    }
+    xhr.send();
+
+}
+  
+  // this was marked as conflict
   function clearAll(){
       
       for (var i = 0; i < markers.length; i++) {
@@ -451,6 +518,7 @@ $(document).ready(function() {
       $("#place_list").empty();
 
   }
+//// this was marked as conflict
 
     google.maps.event.addDomListener(window, 'load', init);
 
