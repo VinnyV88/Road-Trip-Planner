@@ -61,29 +61,22 @@ $(document).ready(function() {
 
            //update the waypt: key of the marker to indicate that it is now a waypoint marker
            markers[$(this).data("index")].waypt = true;
+
            calculateAndDisplayRoute();
 
         });
 
         $(document).on("click", ".remove-route", function() {
-            removeWayPointsFromRoute($(this));
-            calculateAndDisplayRoute();
-        });
-
-    } // end init
-
-      function removeWayPointsFromRoute(objWayPt){
-        var location = {lat: objWayPt.data("lat"), lng: objWayPt.data("lng")};
+           var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
 
            //delete the waypoint element indicated by the saved waypt-index 
-           waypts.splice(objWayPt.data("waypt-index"), 1)
+           waypts.splice($(this).data("waypt-index"), 1)
 
            //if we delete a waypoint somewhere in the middle of the waypnts array, 
            //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
-           objWayPt.nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
+           $(this).nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
 
            //update the marker to indicate it is no longer a waypoint and remove it from the map
-
            markers[$(this).data("index")].waypt = false;
            markers[$(this).data("index")].setMap(null);
 
@@ -109,17 +102,6 @@ $(document).ready(function() {
         });
 
     } // end init
-                  
-                  // this was marked as conflict
-
-//            markers[objWayPt.data("index")].waypt = false;
-//            markers[objWayPt.data("index")].setMap(null);
-//       }
-                  
-                  
-                  // this was marked as conflict
-          
-
 
            
     function calculateAndDisplayRoute() {
