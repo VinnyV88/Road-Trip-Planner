@@ -9,6 +9,7 @@ $(document).ready(function() {
     var dirDisp = new google.maps.DirectionsRenderer();
     var dirServ = new google.maps.DirectionsService();
     var globalCat;
+    var showHint = true;
 
 
     function init() {
@@ -28,13 +29,18 @@ $(document).ready(function() {
 
 
         var onClickGoHandler = function() {
+            clearAll();
             origin = startInput.value;
             destination = endInput.value;
             console.log(destination);
             calculateAndDisplayRoute();
-            $("#msgModaltitle").text("Hint")
-            $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
-            $("#msgModal").modal("show");
+            if (showHint){
+              $("#msgModaltitle").text("Hint")
+              $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
+              $("#msgModal").modal("show");
+              showHint = false;
+            }
+            
         };
 
         document.getElementById('go-btn').addEventListener('click', onClickGoHandler);
@@ -123,6 +129,8 @@ $(document).ready(function() {
                 pDiv.append('<p>').text(place.phone_number)
                 pDiv.append('<p>').text(place.website);
                 $('#place_list').append(pDiv);
+                //$('li #gdir').removeClass("active");
+                //$('li #place_list').addClass("active");
             }
         }
       }        
@@ -429,6 +437,20 @@ $(document).ready(function() {
 		}
 		showMarkers();
 	}
+
+  function clearAll(){
+      
+      for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+      markers = [];
+      waypts = [];
+      searchResults = [];
+      $(".panel-weather").empty();
+      $("#city_list").empty();
+      $("#place_list").empty();
+
+  }
 
     google.maps.event.addDomListener(window, 'load', init);
 
