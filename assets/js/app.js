@@ -34,6 +34,7 @@ $(document).ready(function() {
             origin = startInput.value;
             destination = endInput.value;
             console.log(destination);
+            getDestlnglat(destination);
             calculateAndDisplayRoute();
             if (showHint){
               $("#msgModaltitle").text("Hint")
@@ -67,7 +68,9 @@ $(document).ready(function() {
         });
 
         $(document).on("click", ".remove-route", function() {
+
            var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+
 
            //delete the waypoint element indicated by the saved waypt-index 
            waypts.splice($(this).data("waypt-index"), 1)
@@ -75,6 +78,7 @@ $(document).ready(function() {
            //if we delete a waypoint somewhere in the middle of the waypnts array, 
            //then the following waypoint indexes need to be updated to reflect their current position in the waypnts array
            $(this).nextAll().data("waypt-index", $(this).data("waypt-index") - 1) 
+
 
            //update the marker to indicate it is no longer a waypoint and remove it from the map
            markers[$(this).data("index")].waypt = false;
@@ -102,7 +106,6 @@ $(document).ready(function() {
         });
 
     } // end init
-
            
     function calculateAndDisplayRoute() {
 
@@ -129,7 +132,6 @@ $(document).ready(function() {
         }, function(response, status) {
             if (status === 'OK') {
                 dirDisp.setDirections(response);
-                getDestlnglat(destination);
                 populatePlacesTab(response);
             } else {
                 $("#msgModaltitle").text("Warning")
@@ -495,7 +497,7 @@ function makeShort() {
       markers = [];
       waypts = [];
       searchResults = [];
-      $(".panel-weather").empty();
+      $(".panel-weather > tbody").empty();
       $("#city_list").empty();
       $("#place_list").empty();
 
@@ -503,8 +505,5 @@ function makeShort() {
 //// this was marked as conflict
 
     google.maps.event.addDomListener(window, 'load', init);
-
-
-
 
 }); // end document ready
