@@ -62,7 +62,7 @@ $(document).ready(function() {
 
            //update the waypt: key of the marker to indicate that it is now a waypoint marker
            markers[$(this).data("index")].waypt = true;
-
+           infowindow.close();
            calculateAndDisplayRoute();
 
         });
