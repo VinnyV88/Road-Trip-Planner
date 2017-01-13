@@ -160,8 +160,6 @@ $(document).ready(function() {
                 pDiv.append('<p>').text(place.phone_number)
                 pDiv.append('<p>').text(place.website);
                 $('#place_list').append(pDiv);
-                //$('li #gdir').removeClass("active");
-                //$('li #place_list').addClass("active");
             }
         }
       }        
