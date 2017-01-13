@@ -499,7 +499,8 @@ function makeShort() {
       markers = [];
       waypts = [];
       searchResults = [];
-      $(".panel-weather > tbody").empty();
+      $(".table-weather > tbody").text("");
+      $(".panel-weather").hide();
       $("#city_list").empty();
       $("#place_list").empty();
 
