@@ -341,6 +341,7 @@ $(document).ready(function() {
             .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng())
             .attr("data-index", this.markeri);
       }
+      $("a[href='#places']").click();
 
       infodiv.append(name).append(rating).append(toggleRoute);
 
@@ -429,6 +430,7 @@ $(document).ready(function() {
         calculateAndDisplayRoute();
         if (markers.length > 0) {
             displayPlacesAroundMarker(markers);
+            $("a[href='#cities']").click();
         }
 
 
