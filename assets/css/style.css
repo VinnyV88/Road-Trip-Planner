@@ -25,3 +25,67 @@ html, body {
 	float: right;
 	font-size:18px;
 }
+
+
+
+.jumbo-style {
+	border-color: #fdcd06;
+    border-style: double;
+    border-width: 15px;
+    border-radius: 30px;
+    /*border: 10px inset;*/
+ 	background: #494949 url('../images/asphalt2.jpeg') 0/300px repeat;
+
+}
+
+.plan-trip {
+ 	background: #494949;
+}
+
+.panel-default>.panel-heading {
+    background-image: none;
+    color: #fff;
+    background-color: #2279bc;
+    border-color: #ddd;
+}
+
+.mod-flex {
+	margin-left: 100px;
+    margin-right: 100px;
+}
+
+.flex-box-hdr {
+	display: -webkit-flex;
+    display: flex;
+    height: 340px;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+
+.logo {
+	border-radius: 30px;
+    height: 320px;
+}
+
+.hdrimg {
+	height: 80px;
+    -webkit-align-self: center;
+    align-self: center;	
+}
+
+#copy-target {
+    position: relative;
+    left: 80px;
+    top: -26px;
+    z-index: -100;
+}
+
+.modal-header {
+    color: #fff;
+    background-color: #2279bc;
+    border-color: #ddd;
+}
