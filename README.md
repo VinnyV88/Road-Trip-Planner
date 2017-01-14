@@ -15,9 +15,12 @@ You can give a brief listing of the technologies you've learned and applied here
 - Bootstrap
 
 ## APIs used
+* GeoNames API
+* DarkSkies API
+* Google Maps API
+* Bitly API
 
 ## Built With
-
 * Sublime Text 
 * Heroku 
 
