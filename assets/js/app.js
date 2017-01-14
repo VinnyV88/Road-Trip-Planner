@@ -165,13 +165,13 @@ $(document).ready(function() {
 
         if (m.type === "nearby") {
           var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities10000&username=tripstop";
-	    
+      
           $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
 
             if (geoResponse.geonames.length > 0) {
-	     
+       
               for (var i = 0; i < geoResponse.geonames.length; i++) {
-                var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name).attr("data-lat", geoResponse.geonames[i].lat).attr("data-lng", geoResponse.geonames[i].lng);
+                var nearbyPlace = $("<div>").addClass("nearby-place-div").text(geoResponse.geonames[i].name.substr(0,19)).attr("data-lat", geoResponse.geonames[i].lat).attr("data-lng", geoResponse.geonames[i].lng);
                 nearbyPlace.append('<span class="fa fa-bed fa-fw fa-action" style="font-size:18px"></span>');
                 nearbyPlace.append('<span class="fa fa-cutlery fa-fw fa-action" style="font-size:18px"></span>');
                 nearbyPlace.append('<span class="fa fa-thermometer-full fa-fw fa-action"  style="font-size:18px"></span>');
@@ -179,10 +179,10 @@ $(document).ready(function() {
               }  // end of for loop
 
 
-              $(".fa-action").on("click", function() {	         
+              $(".fa-action").on("click", function() {           
                 var category = 'wiki';
                 var classesList = $(this).attr('class').split(" ");
-	        
+          
                 if (classesList.indexOf('fa-cutlery') >= 0) {
                   category = 'restaurant';
                 } else if (classesList.indexOf('fa-thermometer-full') >= 0) {
@@ -190,7 +190,7 @@ $(document).ready(function() {
                 } else if (classesList.indexOf('fa-bed') >= 0) {
                   category = 'lodging';
                 }
-	                    
+                      
                 var lat = $(this).parent().data("lat");
                 var lng = $(this).parent().data("lng");
                 var city = $(this).parent().text();
@@ -288,9 +288,9 @@ $(document).ready(function() {
       var rating;
 
       if (place.rating == null) {
-      	rating = $("<p>").text("No Rating Available").addClass("place-rating");
+        rating = $("<p>").text("No Rating Available").addClass("place-rating");
       } else {
-      	rating = $("<p>").text("Rating: " + place.rating + " of 5").addClass("place-rating");
+        rating = $("<p>").text("Rating: " + place.rating + " of 5").addClass("place-rating");
       }
 
       var toggleRoute;
@@ -393,41 +393,41 @@ $(document).ready(function() {
     }
   }  // end of placeMarker function
 
-	// Sets the map on all markers in the array.
-	function setMapOnAll(map) {
-		for (var i = 0; i < markers.length; i++) {
-		  markers[i].setMap(map);
-		}
-	} // end of setMapOnAll function
+  // Sets the map on all markers in the array.
+  function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  } // end of setMapOnAll function
 
-	// Removes the markers from the map, but keeps them in the array.
-	function clearMarkers() {
-		setMapOnAll(null);
-	}
+  // Removes the markers from the map, but keeps them in the array.
+  function clearMarkers() {
+    setMapOnAll(null);
+  }
 
-	// Shows any markers currently in the array.
-	function showMarkers() {
-		setMapOnAll(map);
-	}
+  // Shows any markers currently in the array.
+  function showMarkers() {
+    setMapOnAll(map);
+  }
 
 
-	// Deletes all markers in the array by removing references to them.
-	function deleteMarkers() {
-		//make a copy of the current markers so that after we remove all of them, we can add back the waypoint markers
-		var markersHold = markers;
-		clearMarkers();
-		markers = [];
+  // Deletes all markers in the array by removing references to them.
+  function deleteMarkers() {
+    //make a copy of the current markers so that after we remove all of them, we can add back the waypoint markers
+    var markersHold = markers;
+    clearMarkers();
+    markers = [];
 
-		//if a marker is a waypoint, leave it on the map so the user has a way to remove from the route
-		for (var i = 0; i < markersHold.length; i++) {
-			if (markersHold[i].waypt) {
-				//reset the index hold area of the marker since only waypoint markers are kept
-				markersHold[i].markeri = markers.length
-				markers.push(markersHold[i])
-			}
-		}
-		showMarkers();
-	}   // end of deleteMarkers function
+    //if a marker is a waypoint, leave it on the map so the user has a way to remove from the route
+    for (var i = 0; i < markersHold.length; i++) {
+      if (markersHold[i].waypt) {
+        //reset the index hold area of the marker since only waypoint markers are kept
+        markersHold[i].markeri = markers.length
+        markers.push(markersHold[i])
+      }
+    }
+    showMarkers();
+  }   // end of deleteMarkers function
 
 
   function makeShort() {
