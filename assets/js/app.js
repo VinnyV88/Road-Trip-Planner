@@ -172,7 +172,7 @@ $(document).ready(function() {
       markers.forEach(function(m) {
 
         if (m.type === "nearby") {
-          var geourl = "https://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities10000&username=tripstop";
+          var geourl = "http://api.geonames.org/findNearbyPlaceNameJSON?radius=50&lat=" + m.position.lat() + "&lng=" + m.position.lng() + "&cities=cities10000&username=tripstop";
       
           $.ajax({ url: geourl, method: "GET" }).done(function(geoResponse) {
 
