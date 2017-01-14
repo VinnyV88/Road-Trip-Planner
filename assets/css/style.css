@@ -11,6 +11,10 @@
 	overflow: auto;
 }
 
+#places {
+	height: 459px;
+	overflow: auto;
+}
 html, body {
   height: 100%;
   margin: 0;
@@ -95,7 +99,7 @@ html, body {
 	font-weight: bolder;
 }
 
-.add-route {
+.add-route, .remove-route {
 	color: #2279bc;
     font-weight: bolder;
     cursor: pointer;
@@ -103,4 +107,34 @@ html, body {
 
 .fa-bed, .fa-cutlery, .fa-thermometer-full {
 	cursor: pointer;
+}
+
+.place-chip {
+    display: inline-block;
+	padding: 0px 20px;
+    height: 80px;
+    width: 100%;
+    line-height: 25px;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.place-chip img {
+    float: left;
+	margin: 0px 10px 0 -20px;
+    height: 80px;
+    width: 80px;
+    border-radius: 20%;
+}
+
+.chip-name {
+	font-weight: bolder;
+    font-size: 16px;
+}
+
+.chip-rating {
+	font-weight: bold;
+    font-size: 14px;
 }

@@ -29,8 +29,6 @@ $(document).ready(function() {
     dirDisp.setMap(map);
     dirDisp.setPanel(document.getElementById('gdir'));
 
-    // $(".panel-map").hide();
-
     var onClickGoHandler = function() {
       clearAll();
       origin = startInput.value;
@@ -48,10 +46,13 @@ $(document).ready(function() {
     
     $(document).on("click", ".add-route", function() {
       var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};
+      var placeId = $(this).data("placeid");
       waypts.push({
         location: location,
         stopover: true
       });
+      
+      addPlaceToPlaces(placeId);
 
       //update the waypt: key of the marker to indicate that it is now a waypoint marker
       markers[$(this).data("index")].waypt = true;
@@ -61,7 +62,9 @@ $(document).ready(function() {
 
 
     $(document).on("click", ".remove-route", function() {
-      var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};    
+      var location = {lat: $(this).data("lat"), lng: $(this).data("lng")};  
+      var placeId = $(this).data("placeid");
+      $("#" + placeId).remove();  
       //delete the waypoint element indicated by the saved waypt-index 
       waypts.splice($(this).data("waypt-index"), 1);
 
@@ -114,9 +117,8 @@ $(document).ready(function() {
       travelMode: 'DRIVING'
         }, function(response, status) {
           if (status === 'OK') {
-            // $(".panel-map").show();
             dirDisp.setDirections(response);
-            populatePlacesTab(response);
+            // populatePlacesTab(response);
             if (showHint){
               $("#msgModaltitle").html("<span class=\"fa fa-lightbulb-o\" style=\"font-size:24px\"></span> Hint")
               $("#modal-message").text("Click on locations along the route to find restaurants, hotels and weather reports.");
@@ -125,7 +127,6 @@ $(document).ready(function() {
               showHint = false;
             }
           } else {
-            // $(".panel-map").hide();
             $("#msgModaltitle").html("<span class=\"fa fa-warning\" style=\"font-size:24px\"></span> Warning")
             $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
             $("#msgModal").modal("show");
@@ -133,31 +134,38 @@ $(document).ready(function() {
       });
     }
 
+    function addPlaceToPlaces(id) {
+      var request = {
+        placeId: id
+      };
 
-    function populatePlacesTab(dsresponse) {
-      $('#place_list').empty();
-      for (var i = 0; i < dsresponse.geocoded_waypoints.length; i++) {
-        var request = {
-          placeId: dsresponse.geocoded_waypoints[i].place_id
-        };
+      service = new google.maps.places.PlacesService(map);
+      service.getDetails(request, callback);
 
-        service = new google.maps.places.PlacesService(map);
-        service.getDetails(request, callback);
+      function callback(place, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          console.log(place);
+          pDiv = $('<div>').attr('id', place.place_id).addClass("place-chip");
 
-        function callback(place, status) {
-
-          if (status == google.maps.places.PlacesServiceStatus.OK) {
-            pDiv = $('<div>');
-            pDiv.append($('<p>').text(place.name))
-            .append($('<p>').html(place.adr_address))
-            .append($('<p>').text(place.phone_number))
-            .append($('<p>').text(place.website));
-            $('#place_list').append(pDiv);
+          if (!(place.photos == null)) {
+            pDiv.append($('<img>').attr('src', place.photos[0].getUrl({'maxWidth': 100, 'maxHeight': 100}))
+                .addClass('place-pic'))
+          } else {
+            pDiv.append($('<img>').attr('src', 'assets/images/placesPlaceholder.png')
+                .addClass('place-pic'))
           }
-        }
-      }        
-    }
+          pDiv.append(place.name).addClass('chip-name');
 
+          if (place.rating == null) {
+            pDiv.append($('<p>').html('No Rating Available').addClass('chip-rating'));
+          } else {
+            pDiv.append($('<p>').html("Rating: " + place.rating + " of 5").addClass('chip-rating'));
+          }
+          
+          $('#place_list').append(pDiv);
+        }
+      }
+    }
 
     function displayPlacesAroundMarker(marker) {
       $('#city_list').empty();
@@ -299,9 +307,14 @@ $(document).ready(function() {
       //if it is, then store the index of the waypoint in the DOM element so we know which waypoint to remove if the user chooses to do so
       //also, we store the index of the marker itself so we know which marker to delete or not delete (if it's a waypoint) when we refresh the map
       if (wayptExists) {
-        toggleRoute = $("<p>").text("Remove from Route").addClass("remove-route").attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng()).attr("data-waypt-index", index).attr("data-index", this.markeri);
+        toggleRoute = $("<p>").text("Remove from Route").addClass("remove-route")
+        .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng())
+        .attr("data-waypt-index", index).attr("data-index", this.markeri)
+        .attr("data-placeid", place.place_id);
       } else {
-        toggleRoute = $("<p>").text("Add to Route").addClass("add-route").attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng()).attr("data-index", this.markeri);
+        toggleRoute = $("<p>").text("Add to Route").addClass("add-route")
+        .attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng())
+        .attr("data-index", this.markeri).attr("data-placeid", place.place_id);
       }
 
       $("a[href='#places']").click();
@@ -459,7 +472,6 @@ $(document).ready(function() {
     $(".panel-weather").hide();
     $("#city_list").empty();
     $("#place_list").empty();
-    // $(".panel-map").hide();
   }  // end of clearAll function
 
   google.maps.event.addDomListener(window, 'load', init);
