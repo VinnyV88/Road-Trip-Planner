@@ -89,3 +89,18 @@ html, body {
     background-color: #2279bc;
     border-color: #ddd;
 }
+
+.place-name {
+	font-weight: bold;
+    font-size: 15px;
+}
+
+.place-rating {
+	font-weight: bolder;
+}
+
+.add-route {
+	color: #2279bc;
+    font-weight: bolder;
+    cursor: pointer;
+}
