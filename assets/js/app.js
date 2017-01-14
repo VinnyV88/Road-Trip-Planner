@@ -26,6 +26,7 @@ $(document).ready(function() {
       zoom: 7
     });
 
+
     dirDisp.setMap(map);
     dirDisp.setPanel(document.getElementById('gdir'));
 
@@ -142,6 +143,7 @@ $(document).ready(function() {
         service.getDetails(request, callback);
 
         function callback(place, status) {
+
           if (status == google.maps.places.PlacesServiceStatus.OK) {
             pDiv = $('<div>');
             pDiv.append($('<p>').text(place.name))
@@ -299,7 +301,7 @@ $(document).ready(function() {
       } else {
         toggleRoute = $("<p>").text("Add to Route").addClass("add-route").attr("data-lat", this.position.lat()).attr("data-lng", this.position.lng()).attr("data-index", this.markeri);
       }
-      
+
       $("a[href='#places']").click();
 
       infodiv.append(name).append(rating).append(toggleRoute);
@@ -366,6 +368,7 @@ $(document).ready(function() {
           }
           $("#weatherModalTitle").text(" Weather Forecast for " + city)
           $("#weatherModal").modal("show");// put weather in a modal box
+
         }
       }
     });   // end of AJAX call to get weather
