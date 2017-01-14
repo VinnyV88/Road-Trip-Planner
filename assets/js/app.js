@@ -15,7 +15,6 @@ $(document).ready(function() {
 
   function init() {
     $(".panel-weather").hide();
-    $(".panel-map").hide();
     var startInput = document.getElementById('start-location-input');
     var endInput = document.getElementById('destination-location-input');
     var autocompleteStart = new google.maps.places.Autocomplete(startInput);
@@ -30,6 +29,7 @@ $(document).ready(function() {
     dirDisp.setMap(map);
     dirDisp.setPanel(document.getElementById('gdir'));
 
+    // $(".panel-map").hide();
 
     var onClickGoHandler = function() {
       clearAll();
@@ -114,6 +114,7 @@ $(document).ready(function() {
       travelMode: 'DRIVING'
         }, function(response, status) {
           if (status === 'OK') {
+            // $(".panel-map").show();
             dirDisp.setDirections(response);
             populatePlacesTab(response);
             if (showHint){
@@ -124,6 +125,7 @@ $(document).ready(function() {
               showHint = false;
             }
           } else {
+            // $(".panel-map").hide();
             $("#msgModaltitle").html("<span class=\"fa fa-warning\" style=\"font-size:24px\"></span> Warning")
             $("#modal-message").text("The route could not be generated.  Please check your starting and ending points.")
             $("#msgModal").modal("show");
@@ -457,7 +459,7 @@ $(document).ready(function() {
     $(".panel-weather").hide();
     $("#city_list").empty();
     $("#place_list").empty();
-    $(".panel-map").hide();
+    // $(".panel-map").hide();
   }  // end of clearAll function
 
   google.maps.event.addDomListener(window, 'load', init);
