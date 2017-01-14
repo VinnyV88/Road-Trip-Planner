@@ -14,28 +14,8 @@
 </head>
 
 <body>
-<!--   <nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="index.html"><span class="byname"> by Vincent Visconti</span><img id="logo" src="assets/images/ViVi_Web_logo_bb.svg" alt="Logo"></a>
-      </div>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="hidden" id="sign-out"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
-        <li class="dropdown" id="sign-in">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="glyphicon glyphicon-user"></span> Login<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li id="google-sign-in"><a href="#"><span class="fa fa-google-plus-official" style="font-size:24px"></span> Google</a></li>
-                  <li id="github-sign-in"><a href="#"><span class="fa fa-github" style="font-size:24px"></span> Github</a></li>
-                </ul>
-            </li>
-      </ul>
-    </div>
-  </nav> -->
+
   <div class="flex-container mod-flex">
-<!--     <div id="user-container">
-      <div id="user-pic"></div>
-      <div id="user-name"></div>
-    </div> -->
     <br>
     <!-- Jumbotron -->
     <div class="jumbotron jumbo-style">
@@ -62,10 +42,9 @@
           <img class="hdrimg img-responsive" id="exit" src="assets/images/exitSign.png">
         </div>
       </div>
-      <!-- <img class="hdrimg img-responsive" id="i66" src="assets/images/I-66.png"> -->
-    </div>
+    </div>   <!-- end of Jumbotron -->
 
-    <div class="row">
+    <div class="row">    <!-- start of start stop locations div -->
       <div class="col-lg-12">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -74,13 +53,11 @@
           <div class="panel-body plan-trip">
             <form role="form">
               <div class="input-group">
-                <!-- <label for="start-location-input"><p>Start:</p></label> -->
                 <span class="input-group-addon"><span class="fa fa-flag" style="font-size:20px"></span></span>
                 <input class="controls form-control" id="start-location-input" placeholder="Start: Address, City, Zip, Place of Interest" type="text">
               </div>
               <br>
               <div class="input-group">
-                <!-- <label for="destination-location-input"><p>Destination:</p></label> -->
                 <span class="input-group-addon"><span class="fa fa-flag-checkered" style="font-size:20px"></span></span>
                 <input class="controls form-control" id="destination-location-input" placeholder="Finish: Address, City, Zip, Place of Interest" type="text">
               </div>
@@ -93,27 +70,26 @@
           </div>
         </div>
       </div>
-    </div>
+    </div>   <!--  end of start stop locations div -->
                     
 
-      <div class="row">
+    <div class="row">    <!--  start of map div -->
       <div class="col-lg-12">
-        <div class="panel panel-default">
+        <div class="panel panel-default panel-map">
           <div class="panel-heading">
             <h3 class="panel-title"><span class="fa fa-map" style="font-size:24px"></span> Map</h3>
           </div>
           <div class="panel-body">
             <div class="col-lg-3">
 
-            <ul class="nav nav-tabs">
-              <li class="active"><a data-toggle="tab" href="#gdir">Directions</a></li>
-              <li><a data-toggle="tab" href="#places">Places</a></li>
-              <li><a data-toggle="tab" href="#cities">Nearby</a></li>
-            </ul>
+              <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#gdir">Directions</a></li>
+                <li><a data-toggle="tab" href="#places">Places</a></li>
+                <li><a data-toggle="tab" href="#cities">Nearby</a></li>
+              </ul>
 
             <div class="tab-content">
               <div id="gdir" class="tab-pane fade in active">
-               
               </div>
               <div id="cities" class="tab-pane fade">
                 <h3>Nearby </h3>
@@ -123,53 +99,49 @@
                 <h3>Your route </h3>
                 <p id="place_list"></p>
                 <p></p>
-              </div>
-
-              
+              </div>        
             </div>
-
-            </div>
-            <div class="col-lg-9">
-              <div id="gmap">
-              </div>
+          </div>
+          <div class="col-lg-9">
+            <div id="gmap">
             </div>
           </div>
         </div>
-
       </div>
     </div>
+  </div>    <!-- end of map div -->
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="panel panel-default panel-weather">
-          <div class="panel-heading">
-            <h3 class="panel-title"><span class="fa fa-thermometer-full" style="font-size:24px"></span><span id="weather-title"></span></h3>
-          </div>
-          <div class="panel-body">
-           <div class="weather">
-              <table class="table table-striped table-hover table-weather">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>High Temp.</th>
-                    <th>Low Temp.</th>
-                    <th>Forecast</th>
-                  </tr>
-                </thead>
-                <tbody>
+  <div class="row">    <!-- start of destination weather div -->
+    <div class="col-lg-12">
+      <div class="panel panel-default panel-weather">
+        <div class="panel-heading">
+          <h3 class="panel-title"><span class="fa fa-thermometer-full" style="font-size:24px"></span><span id="weather-title"></span></h3>
+        </div>
+        <div class="panel-body">
+          <div class="weather">
+            <table class="table table-striped table-hover table-weather">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>High Temp.</th>
+                  <th>Low Temp.</th>
+                  <th>Forecast</th>
+                </tr>
+              </thead>
+              <tbody>
                      <!-- filled by JS -->
-                </tbody>
-              </table>
-            </div>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
+  </div>    <!-- end of destination weather div -->
 
-  </div>    
+</div>    
 
 
-  <div id="weatherModal" class="modal fade" role="dialog">
+  <div id="weatherModal" class="modal fade" role="dialog">    <!-- start of waypoint weather div -->
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content">
@@ -179,23 +151,20 @@
         </div>
         <div class="modal-body">
           <div class="weather">
-              <table class="table table-striped table-hover table-weather-modal">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>High Temp.</th>
-                    <th>Low Temp.</th>
-                    <th>Forecast</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <table class="table table-striped table-hover table-weather-modal">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>High Temp.</th>
+                  <th>Low Temp.</th>
+                  <th>Forecast</th>
+                </tr>
+              </thead>
+              <tbody>
                      <!-- filled by JS -->
-                </tbody>
-              </table>
-              <div id="weather-alert">
-
-              </div>
-            </div>
+              </tbody>
+            </table>  
+          </div>
         </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default close-delete" data-dismiss="modal">Close</button>
@@ -203,7 +172,9 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>     <!-- end of weather modal for waypoints -->
+
+
     <!-- Message Modal -->
   <div id="msgModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
