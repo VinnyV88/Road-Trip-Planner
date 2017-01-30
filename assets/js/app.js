@@ -399,7 +399,7 @@ $(document).ready(function() {
     });
     markers.push(marker);
 
-    calculateAndDisplayRoute();
+    // calculateAndDisplayRoute();
     if (markers.length > 0) {
       displayPlacesAroundMarker(markers);
       $("a[href='#cities']").click();
