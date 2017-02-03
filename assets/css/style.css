@@ -132,9 +132,11 @@ html, body {
 .chip-name {
 	font-weight: bolder;
     font-size: 12px;
+    line-height: 14px;
 }
 
 .chip-rating {
 	font-weight: bold;
     font-size: 10px;
+    padding-top: 10px;
 }
